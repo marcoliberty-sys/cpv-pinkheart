@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CPV — Pink Heart · Veri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --g:  #0F7A5B;
+  --g2: #0A5240;
+  --g3: #e6f4ef;
+  --pk: #D4547A;
+  --pk2:#B8365C;
+  --pk3:#fce8ef;
+  --gd: #C8A96E;
+  --gd2:#a8893e;
+  --ink:#1a2e25;
+  --ink2:#2d4a3e;
+  --ink3:#5a7a6e;
+  --ink4:#94a89f;
+  --line:#d8e8e2;
+  --line2:#edf5f1;
+  --bg: #f4f8f6;
+  --w:  #ffffff;
+  --ok: #0F7A5B;
+  --ok-bg:#e6f4ef;
+  --err:#c0392b;
+  --err-bg:#fdecea;
+  --warn:#d68910;
+  --warn-bg:#fef9e7;
+  --r:8px;
+  --r2:14px;
+  --sh:0 1px 4px rgba(15,122,91,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 20px rgba(15,122,91,.12);
+  --fn:'DM Sans',sans-serif;
+  --fm:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fn);background:var(--bg);color:var(--ink);font-size:13px;min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;height:52px;background:var(--ink);display:flex;align-items:center;padding:0 1.5rem;gap:1rem;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--pk),var(--gd));display:flex;align-items:center;justify-content:center;font-size:16px}
+.brand-name{font-size:14px;font-weight:600;color:#fff;letter-spacing:.02em}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase}
+.topbar-nav{display:flex;gap:2px;margin-left:1.5rem;flex:1;overflow-x:auto}
+.topbar-nav::-webkit-scrollbar{display:none}
+.tnav{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r);border:none;background:none;cursor:pointer;font-family:var(--fn);font-size:12px;color:rgba(255,255,255,.5);white-space:nowrap;transition:all .15s}
+.tnav:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.tnav.active{background:rgba(15,122,91,.35);color:#fff;font-weight:500}
+.tnav i{font-size:14px}
+.topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#ccc;flex-shrink:0;transition:background .3s}
+.status-dot.ok{background:#4ade80}
+.status-dot.err{background:#f87171}
+.status-txt{font-size:11px;color:rgba(255,255,255,.4)}
+
+/* ── MAIN ── */
+.main{margin-top:52px;padding:1.5rem;max-width:1280px}
+
+/* ── CARDS ── */
+.card{background:var(--w);border-radius:var(--r2);border:1px solid var(--line);box-shadow:var(--sh);overflow:hidden}
+.card-head{padding:.85rem 1.1rem;border-bottom:1px solid var(--line2);display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--g3) 0%,var(--w) 100%)}
+.card-title{font-size:13px;font-weight:600;color:var(--ink);flex:1}
+.card-body{padding:1.1rem}
+
+/* ── TABS CONTENT ── */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ── METAIS TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{font-size:10px;font-weight:600;color:var(--ink3);text-align:left;padding:7px 10px;border-bottom:1.5px solid var(--line);text-transform:uppercase;letter-spacing:.06em;background:var(--line2)}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--g3)}
+.tbl input,.tbl select{width:100%;padding:5px 8px;border:1px solid var(--line);border-radius:6px;font-family:var(--fn);font-size:12px;background:var(--w);color:var(--ink);outline:none;transition:border-color .15s}
+.tbl input:focus,.tbl select:focus{border-color:var(--g);box-shadow:0 0 0 2px rgba(15,122,91,.12)}
+.color-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* ── BUTTONS ── */
+button{font-family:var(--fn);cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:none;font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap}
+.btn-g{background:var(--g);color:#fff}.btn-g:hover{background:var(--g2)}
+.btn-pk{background:var(--pk);color:#fff}.btn-pk:hover{background:var(--pk2)}
+.btn-gd{background:var(--gd);color:#fff}.btn-gd:hover{background:var(--gd2)}
+.btn-ghost{background:none;border:1px solid var(--line);color:var(--ink3)}.btn-ghost:hover{background:var(--line2)}
+.btn-icon{background:none;border:none;color:var(--ink4);padding:4px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px}.btn-icon:hover{color:var(--err);background:var(--err-bg)}
+.add-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--g);background:none;border:none;padding:4px 0;cursor:pointer}.add-link:hover{color:var(--g2)}
+
+/* ── LAYOUT SKU ── */
+.sku-layout{display:flex;gap:1rem}
+.sku-sidebar{width:168px;flex-shrink:0}
+.sku-sidebar-inner{background:var(--w);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden}
+.sidebar-head{padding:.7rem .9rem;background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.sk-tab{display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;border:none;background:none;text-align:left;font-family:var(--fn);font-size:12px;color:var(--ink3);cursor:pointer;border-bottom:1px solid var(--line2);transition:all .12s}
+.sk-tab:last-child{border-bottom:none}
+.sk-tab.active{background:var(--g3);color:var(--g);font-weight:500}
+.sk-tab:hover:not(.active){background:var(--line2)}
+.sk-tab i{font-size:13px;flex-shrink:0}
+.sku-editor{flex:1;min-width:0}
+
+/* ── FIELDS ── */
+.fg{margin-bottom:.9rem}
+.fg-head{font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;padding:5px 0 6px;border-bottom:1.5px solid var(--line);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.fg-head i{font-size:13px;color:var(--g)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.fi label{display:block;font-size:10px;font-weight:500;color:var(--ink3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
+.fi input,.fi select{width:100%;padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-family:var(--fn);font-size:12px;color:var(--ink);background:var(--w);outline:none;transition:border-color .15s}
+.fi input:focus,.fi select:focus{border-color:var(--g);box-shadow:0 0 0 2px rgba(15,122,91,.1)}
+.calc-box{padding:6px 9px;background:var(--g3);border-radius:6px;font-size:12px;font-weight:600;color:var(--g);border:1px solid var(--line);font-family:var(--fm)}
+.vol-hint{font-size:10px;color:var(--g);margin-top:2px}
+
+/* ── SN BUTTONS ── */
+.sn-wrap{display:flex;flex-direction:column;gap:3px}
+.sn-row{display:flex;align-items:center;gap:5px;margin-top:3px}
+.sn-btn{padding:3px 10px;border-radius:20px;border:1px solid var(--line);background:none;cursor:pointer;font-size:11px;font-family:var(--fn);color:var(--ink3);transition:all .12s}
+.sn-btn.on-s{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.sn-btn.on-n{background:var(--line2);color:var(--ink3)}
+.sn-cost{flex:1;min-width:0}
+.sn-cost label{display:block;font-size:9px;color:var(--ink4);margin-bottom:2px}
+
+/* ── MLS GRID ── */
+.mls-hdr{display:grid;grid-template-columns:2fr 80px 80px 80px 80px 28px;gap:6px;margin-bottom:4px}
+.mls-hdr span{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink4);font-weight:500}
+.mls-row{display:grid;grid-template-columns:2fr 80px 80px 80px 80px 28px;gap:6px;align-items:center;margin-bottom:5px}
+.mls-row select,.mls-row input{width:100%;padding:5px 7px;border:1px solid var(--line);border-radius:6px;font-family:var(--fn);font-size:11px;color:var(--ink);background:var(--w);outline:none}
+.mls-row select:focus,.mls-row input:focus{border-color:var(--g)}
+
+/* ── INDIRETOS TABLE ── */
+.ind-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px}
+.ind-tbl th{font-size:9px;font-weight:600;color:var(--ink4);text-align:left;padding:5px 7px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05em}
+.ind-tbl td{padding:4px 5px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.ind-tbl tr:last-child td{border-bottom:none}
+.ind-tbl input,.ind-tbl select{width:100%;padding:4px 7px;border:1px solid var(--line);border-radius:5px;font-family:var(--fn);font-size:11px;color:var(--ink);background:var(--w);outline:none}
+.ind-tbl input:focus,.ind-tbl select:focus{border-color:var(--g)}
+
+/* ── SUMMARY ── */
+.summary{background:linear-gradient(135deg,var(--ink) 0%,var(--ink2) 100%);border-radius:var(--r2);padding:1.1rem 1.25rem;margin-top:1rem}
+.sum-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:.7rem}
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:7px}
+.sum-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:9px 11px;backdrop-filter:blur(4px)}
+.sum-card.hi{background:rgba(15,122,91,.3);border-color:rgba(15,122,91,.5)}
+.sum-card.hpk{background:rgba(212,84,122,.25);border-color:rgba(212,84,122,.4)}
+.sum-l{font-size:9px;color:rgba(255,255,255,.5);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
+.sum-v{font-size:15px;font-weight:600;color:#fff;font-family:var(--fm)}
+.sum-v.total{color:#4ade80;font-size:17px}
+.sum-v.preco{color:#fbbf24;font-size:17px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:11px}
+.bar-lbl{width:140px;color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.bar-track{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--g),#4ade80)}
+.bar-val{width:110px;text-align:right;color:rgba(255,255,255,.4);font-family:var(--fm);font-size:10px;flex-shrink:0}
+
+/* ── CHIPS ── */
+.chip{font-size:9px;border-radius:20px;padding:2px 7px;font-weight:500;letter-spacing:.03em}
+.chip-g{background:var(--ok-bg);color:var(--ok)}
+.chip-pk{background:var(--pk3);color:var(--pk)}
+.chip-gd{background:#fef9e7;color:var(--warn)}
+.chip-ink{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
+
+/* ── HIST ── */
+.hist-layout{display:flex;gap:1rem}
+.hist-sidebar{width:168px;flex-shrink:0}
+.hist-metal-btn{display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;border:none;background:none;font-family:var(--fn);font-size:12px;color:var(--ink3);cursor:pointer;border-bottom:1px solid var(--line2);transition:all .12s;text-align:left}
+.hist-metal-btn.active{background:var(--g3);color:var(--g);font-weight:500}
+.hist-metal-btn:hover:not(.active){background:var(--line2)}
+.hcards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.hcard{background:var(--w);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.hcard-l{font-size:9px;color:var(--ink4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.hcard-v{font-size:16px;font-weight:600;color:var(--ink);font-family:var(--fm)}
+.chart-wrap{position:relative;height:170px;margin:.8rem 0}
+.htbl th{font-size:9px;font-weight:600;color:var(--ink4);text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05em}
+.htbl td{padding:5px 7px;border-bottom:1px solid var(--line2);vertical-align:middle;font-size:12px}
+.htbl tr:last-child td{border-bottom:none}
+.htbl input{width:100%;padding:4px 7px;border:1px solid var(--line);border-radius:5px;font-family:var(--fn);font-size:11px;color:var(--ink);outline:none}
+.htbl input:focus{border-color:var(--g)}
+.apply-btn{font-size:11px;background:var(--g3);color:var(--g);border:1px solid var(--g);border-radius:20px;padding:3px 9px;cursor:pointer;font-weight:500}.apply-btn:hover{background:var(--g);color:#fff}
+.var-up{color:var(--err);font-size:10px;font-weight:500}
+.var-dn{color:var(--ok);font-size:10px;font-weight:500}
+.var-eq{color:var(--ink4);font-size:10px}
+
+/* ── SIMULADOR ── */
+.sim-metal-row{display:grid;grid-template-columns:12px 1fr 160px 64px 100px;gap:10px;align-items:center;padding:9px 12px;border-radius:var(--r);margin-bottom:5px;background:var(--w);border:1px solid var(--line)}
+.sim-slider{width:100%;accent-color:var(--g)}
+.sim-pct{font-size:13px;font-weight:600;font-family:var(--fm);text-align:right}
+.sim-pct.pos{color:var(--err)}.sim-pct.neg{color:var(--ok)}.sim-pct.zer{color:var(--ink4)}
+.sim-novo{font-size:11px;font-family:var(--fm);font-weight:500;color:var(--ink2);text-align:right}
+.sim-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.sim-tbl th{font-size:9px;font-weight:600;color:var(--ink4);padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;text-transform:uppercase;letter-spacing:.05em}
+.sim-tbl th:first-child{text-align:left}
+.sim-tbl td{padding:6px 8px;border-bottom:1px solid var(--line2);text-align:right;vertical-align:middle;font-family:var(--fm)}
+.sim-tbl td:first-child{text-align:left;font-family:var(--fn);font-weight:500;color:var(--ink)}
+.sim-tbl tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.badge-up{background:var(--err-bg);color:var(--err)}
+.badge-dn{background:var(--ok-bg);color:var(--ok)}
+.badge-eq{background:var(--line2);color:var(--ink4)}
+.sim-chart-wrap{position:relative;height:190px;margin:.8rem 0}
+.reset-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;background:none;border:1px solid var(--line);border-radius:20px;padding:4px 10px;cursor:pointer;color:var(--ink3)}.reset-btn:hover{background:var(--line2)}
+
+/* ── COMPARATIVO ── */
+.comp-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.comp-tbl th{font-size:9px;font-weight:600;color:var(--ink4);padding:7px 9px;border-bottom:1.5px solid var(--line);text-align:right;text-transform:uppercase;letter-spacing:.05em;background:var(--line2)}
+.comp-tbl th:first-child{text-align:left}
+.comp-tbl td{padding:7px 9px;border-bottom:1px solid var(--line2);text-align:right;vertical-align:middle;font-family:var(--fm);font-size:11px}
+.comp-tbl td:first-child{text-align:left;font-family:var(--fn);font-weight:500;color:var(--ink);font-size:12px}
+.comp-tbl tr:hover td{background:var(--g3);cursor:pointer}
+.comp-tbl tr:last-child td{border-bottom:none}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;display:flex;flex-direction:column;gap:8px;z-index:999}
+.toast{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;font-size:12px;font-weight:500;box-shadow:var(--sh2);animation:slideUp .25s ease;max-width:300px}
+.toast-ok{background:var(--ink);color:#fff;border-left:3px solid #4ade80}
+.toast-err{background:#fff;color:var(--err);border:1px solid var(--err);border-left:3px solid var(--err)}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── ACTIONS ── */
+.actions{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap}
+
+/* ── FORMULA BOX ── */
+.formula-box{background:var(--g3);border:1px solid var(--line);border-radius:var(--r);padding:9px 12px;font-size:11px;color:var(--ink2);line-height:1.65;margin-top:.7rem}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-logo">💎</div>
+    <div>
+      <div class="brand-name">Pink Heart · Veri</div>
+      <div class="brand-sub">Sistema CPV</div>
+    </div>
+  </div>
+
+  <nav class="topbar-nav">
+    <button class="tnav active" onclick="goTab('metais',this)"><i class="ti ti-table"></i>Metais</button>
+    <button class="tnav" onclick="goTab('historico',this)"><i class="ti ti-chart-line"></i>Histórico</button>
+    <button class="tnav" onclick="goTab('simulador',this)"><i class="ti ti-adjustments"></i>Simulador</button>
+    <button class="tnav" onclick="goTab('skus',this)"><i class="ti ti-diamond"></i>SKUs / CPV</button>
+    <button class="tnav" onclick="goTab('resumo',this)"><i class="ti ti-chart-bar"></i>Comparativo</button>
+  </nav>
+
+  <div class="topbar-right">
+    <div class="status-dot" id="sdot"></div>
+    <span class="status-txt" id="stxt">Conectando…</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div id="tab-metais"   class="tab-content active"></div>
+  <div id="tab-historico" class="tab-content"></div>
+  <div id="tab-simulador" class="tab-content"></div>
+  <div id="tab-skus"     class="tab-content"></div>
+  <div id="tab-resumo"   class="tab-content"></div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+/* ═══════════════════ SUPABASE ═══════════════════ */
+const SB_URL  = 'https://khzviafgkswyajrdnbyp.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoenZpYWZna3N3eWFqcmRuYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NTU3ODgsImV4cCI6MjA5NDAzMTc4OH0.OJE1NwBZVWmx2oNJU6PjDPWVP-c2SDocTdfLoyaIoaE';
+const sb      = supabase.createClient(SB_URL, SB_KEY);
+
+/* ═══════════════════ HELPERS ═══════════════════ */
+const R   = v => isNaN(v)||v===null||v===''?0:Number(v);
+const fmt = v => 'R$ '+R(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN= (v,d=2)=>R(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtG= v=>R(v).toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
+const pct = v=>R(v).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+const today=()=>new Date().toISOString().slice(0,10);
+
+function toast(msg,type='ok'){
+  const w=document.getElementById('toasts');
+  const d=document.createElement('div');
+  d.className=`toast toast-${type}`;
+  d.innerHTML=`<i class="ti ti-${type==='ok'?'check':'alert-circle'}"></i>${msg}`;
+  w.appendChild(d);
+  setTimeout(()=>d.remove(),3200);
+}
+
+function setStatus(ok){
+  document.getElementById('sdot').className='status-dot '+(ok?'ok':'err');
+  document.getElementById('stxt').textContent=ok?'Conectado':'Erro BD';
+}
+
+/* ═══════════════════ STATE ═══════════════════ */
+let metais   = [];
+let historico= {}; // {metalId:[...]}
+let skus     = [];
+let skuMls   = {}; // {skuId:[...]}
+let skuInd   = {}; // {skuId:[...]}
+let simVar   = {};
+let curTab   = 'metais';
+let histMid  = null;
+let activeSkuId = null;
+let chartH   = null;
+let chartSim = null;
+
+/* ═══════════════════ SUPABASE LOAD ═══════════════════ */
+async function loadAll(){
+  try{
+    const [m,h,s,ml,in_] = await Promise.all([
+      sb.from('cpv_metais').select('*').eq('ativo',true).order('id'),
+      sb.from('cpv_metais_historico').select('*').order('data'),
+      sb.from('cpv_skus').select('*').eq('ativo',true).order('id'),
+      sb.from('cpv_sku_mls').select('*').order('ordem'),
+      sb.from('cpv_sku_indiretos').select('*').order('ordem'),
+    ]);
+    if(m.error||h.error||s.error||ml.error||in_.error) throw m.error||h.error||s.error||ml.error||in_.error;
+    metais = m.data||[];
+    historico={};
+    (h.data||[]).forEach(e=>{if(!historico[e.metal_id])historico[e.metal_id]=[];historico[e.metal_id].push(e);});
+    skus   = s.data||[];
+    skuMls ={};
+    (ml.data||[]).forEach(l=>{if(!skuMls[l.sku_id])skuMls[l.sku_id]=[];skuMls[l.sku_id].push(l);});
+    skuInd ={};
+    (in_.data||[]).forEach(i=>{if(!skuInd[i.sku_id])skuInd[i.sku_id]=[];skuInd[i.sku_id].push(i);});
+    metais.forEach(m=>{if(simVar[m.id]===undefined)simVar[m.id]=0;});
+    if(!histMid&&metais.length)histMid=metais[0].id;
+    if(!activeSkuId&&skus.length)activeSkuId=skus[0].id;
+    setStatus(true);
+    render();
+  }catch(e){
+    setStatus(false);
+    toast('Erro ao carregar dados','err');
+    console.error(e);
+  }
+}
+
+/* ═══════════════════ NAVIGATION ═══════════════════ */
+function goTab(t,el){
+  curTab=t;
+  document.querySelectorAll('.tnav').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  render();
+}
+function render(){
+  if(curTab==='metais')    renderMetais();
+  else if(curTab==='historico') renderHistorico();
+  else if(curTab==='simulador') renderSimulador();
+  else if(curTab==='skus') renderSkus();
+  else if(curTab==='resumo') renderResumo();
+}
+
+/* ═══════════════════════════════════════════════════
+   ABA 1 — METAIS
+═══════════════════════════════════════════════════ */
+async function saveMetal(m){
+  const {error}=await sb.from('cpv_metais').update({
+    nome:m.nome,cor:m.cor,preco_grama:m.preco_grama,
+    densidade:m.densidade,atualizado_em:new Date().toISOString()
+  }).eq('id',m.id);
+  if(error)toast('Erro ao salvar metal','err');
+  else toast('Metal salvo ✓');
+}
+
+async function addMetal(){
+  const {data,error}=await sb.from('cpv_metais').insert({nome:'Novo metal',cor:'#888888',preco_grama:0,densidade:10}).select().single();
+  if(error){toast('Erro ao adicionar','err');return;}
+  await sb.from('cpv_metais_historico').insert({metal_id:data.id,data:today(),preco:0,obs:'Cadastro inicial'});
+  toast('Metal adicionado ✓');
+  await loadAll();
+}
+
+async function delMetal(id){
+  if(!confirm('Remover este metal?'))return;
+  await sb.from('cpv_metais').update({ativo:false}).eq('id',id);
+  toast('Metal removido');
+  await loadAll();
+}
+
+function renderMetais(){
+  const el=document.getElementById('tab-metais');
+  el.innerHTML=`
+  <div class="card">
+    <div class="card-head">
+      <i class="ti ti-table" style="color:var(--g);font-size:15px"></i>
+      <span class="card-title">Tabela de metais</span>
+      <button class="btn btn-g btn-sm" onclick="addMetal()" style="font-size:11px;padding:5px 10px"><i class="ti ti-plus"></i>Adicionar</button>
+    </div>
+    <div class="card-body">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:12px">Preços base usados no cálculo de milesimagem. Atualize e clique em <strong>Salvar</strong> para registrar no banco.</p>
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:14px"></th>
+          <th>Metal / liga</th>
+          <th style="width:160px">Preço/g (R$)</th>
+          <th style="width:150px">Densidade (g/cm³)</th>
+          <th style="width:70px">Var.</th>
+          <th style="width:70px">Salvar</th>
+          <th style="width:28px"></th>
+        </tr></thead>
+        <tbody id="metais-tbody"></tbody>
+      </table>
+      <div class="formula-box" style="margin-top:1rem">
+        <strong>Fórmula milesimagem (µm):</strong> Peso (g) = espessura (µm) × 10⁻⁴ × área (cm²) × densidade (g/cm³) &nbsp;·&nbsp; Custo = peso × preço/g
+      </div>
+    </div>
+  </div>`;
+  const tbody=document.getElementById('metais-tbody');
+  metais.forEach(m=>{
+    const hist=(historico[m.id]||[]).slice().sort((a,b)=>a.data.localeCompare(b.data));
+    const prev=hist.length>=2?hist[hist.length-2]:null;
+    const vp=prev&&prev.preco>0?((m.preco_grama-prev.preco)/prev.preco*100):null;
+    const varHtml=vp!==null?(vp>0.01?`<span class="var-up">▲${fmtN(vp,1)}%</span>`:vp<-0.01?`<span class="var-dn">▼${fmtN(Math.abs(vp),1)}%</span>`:'<span class="var-eq">—</span>'):'<span class="var-eq">—</span>';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><div class="color-dot" style="background:${m.cor}"></div></td>
+      <td><input id="mn-${m.id}" value="${m.nome}" style="width:100%"></td>
+      <td><input id="mp-${m.id}" type="number" min="0" step="any" value="${m.preco_grama}" style="width:100%;font-family:var(--fm)"></td>
+      <td><input id="md-${m.id}" type="number" min="0" step="any" value="${m.densidade}" style="width:100%;font-family:var(--fm)"></td>
+      <td>${varHtml}</td>
+      <td><button class="btn btn-g" style="font-size:10px;padding:4px 9px" onclick="saveMetalById(${m.id})"><i class="ti ti-check"></i>Salvar</button></td>
+      <td><button class="btn-icon" onclick="delMetal(${m.id})"><i class="ti ti-trash"></i></button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function saveMetalById(id){
+  const m=metais.find(x=>x.id===id);
+  m.nome=document.getElementById(`mn-${id}`).value;
+  m.preco_grama=parseFloat(document.getElementById(`mp-${id}`).value)||0;
+  m.densidade=parseFloat(document.getElementById(`md-${id}`).value)||0;
+  await saveMetal(m);
+  // adicionar ao histórico se preço mudou
+  const hist=(historico[id]||[]).slice().sort((a,b)=>a.data.localeCompare(b.data));
+  const last=hist[hist.length-1];
+  if(!last||Math.abs(last.preco-m.preco_grama)>0.0001){
+    await sb.from('cpv_metais_historico').insert({metal_id:id,data:today(),preco:m.preco_grama,obs:'Atualização'});
+  }
+  await loadAll();
+}
+
+/* ═══════════════════════════════════════════════════
+   ABA 2 — HISTÓRICO
+═══════════════════════════════════════════════════ */
+async function addHistEntry(mid){
+  const m=metais.find(x=>x.id===mid);
+  const {error}=await sb.from('cpv_metais_historico').insert({metal_id:mid,data:today(),preco:m?m.preco_grama:0,obs:''});
+  if(error){toast('Erro','err');return;}
+  await loadAll();
+}
+async function saveHist(id,field,val){
+  const upd={};
+  upd[field]=field==='preco'?parseFloat(val)||0:val;
+  await sb.from('cpv_metais_historico').update(upd).eq('id',id);
+}
+async function delHist(id){
+  await sb.from('cpv_metais_historico').delete().eq('id',id);
+  toast('Registro removido');
+  await loadAll();
+}
+async function applyPreco(mid,preco){
+  const m=metais.find(x=>x.id===mid);
+  if(!m)return;
+  m.preco_grama=preco;
+  await sb.from('cpv_metais').update({preco_grama:preco,atualizado_em:new Date().toISOString()}).eq('id',mid);
+  toast(`Preço atualizado → ${fmt(preco)}/g`);
+  await loadAll();
+}
+function drawHistChart(mid){
+  const sorted=(historico[mid]||[]).slice().sort((a,b)=>a.data.localeCompare(b.data));
+  if(!sorted.length)return;
+  const metal=metais.find(x=>x.id===mid);
+  if(chartH){chartH.destroy();chartH=null;}
+  const canvas=document.getElementById('hist-chart');
+  if(!canvas)return;
+  chartH=new Chart(canvas.getContext('2d'),{
+    type:'line',
+    data:{
+      labels:sorted.map(e=>new Date(e.data+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})),
+      datasets:[{label:'R$/g',data:sorted.map(e=>e.preco),borderColor:metal?metal.cor:'#0F7A5B',backgroundColor:(metal?metal.cor:'#0F7A5B')+'22',borderWidth:2,pointRadius:4,pointBackgroundColor:metal?metal.cor:'#0F7A5B',fill:true,tension:0.35}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2})+'/g'}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'R$'+v.toLocaleString('pt-BR',{minimumFractionDigits:0})}}}}
+  });
+}
+function renderHistorico(){
+  const mid=histMid||(metais[0]?.id);
+  if(!mid)return;
+  const sorted=(historico[mid]||[]).slice().sort((a,b)=>a.data.localeCompare(b.data));
+  const metal=metais.find(x=>x.id===mid)||{};
+  const minP=sorted.length?Math.min(...sorted.map(e=>e.preco)):0;
+  const maxP=sorted.length?Math.max(...sorted.map(e=>e.preco)):0;
+  const f=sorted[0],l=sorted[sorted.length-1];
+  const vt=f&&l&&f.preco>0?((l.preco-f.preco)/f.preco*100):0;
+
+  document.getElementById('tab-historico').innerHTML=`
+  <div class="card">
+    <div class="card-head">
+      <i class="ti ti-chart-line" style="color:var(--g);font-size:15px"></i>
+      <span class="card-title">Histórico de preços</span>
+    </div>
+    <div class="card-body">
+      <div class="hist-layout">
+        <div class="hist-sidebar">
+          <div class="sku-sidebar-inner">
+            <div class="sidebar-head">Metal</div>
+            ${metais.map(m=>`<button class="hist-metal-btn${m.id===mid?' active':''}" onclick="histMid=${m.id};renderHistorico()">
+              <div class="color-dot" style="background:${m.cor}"></div>${m.nome}
+            </button>`).join('')}
+          </div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:.8rem">
+            <div class="color-dot" style="background:${metal.cor};width:12px;height:12px"></div>
+            <span style="font-size:15px;font-weight:600;color:var(--ink)">${metal.nome}</span>
+            <span style="font-size:12px;color:var(--ink3)">atual: <strong style="font-family:var(--fm)">${fmt(metal.preco_grama)}/g</strong></span>
+          </div>
+          <div class="hcards">
+            <div class="hcard"><div class="hcard-l">Mínimo</div><div class="hcard-v">${fmt(minP)}</div></div>
+            <div class="hcard"><div class="hcard-l">Máximo</div><div class="hcard-v">${fmt(maxP)}</div></div>
+            <div class="hcard"><div class="hcard-l">Variação total</div><div class="hcard-v" style="color:${vt>0?'var(--err)':vt<0?'var(--ok)':'var(--ink)'}">${vt>=0?'+':''}${fmtN(vt,1)}%</div></div>
+            <div class="hcard"><div class="hcard-l">Registros</div><div class="hcard-v">${sorted.length}</div></div>
+          </div>
+          <div class="chart-wrap"><canvas id="hist-chart"></canvas></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:12px;font-weight:600;color:var(--ink)">Registros de preço</span>
+            <button class="add-link" onclick="addHistEntry(${mid})"><i class="ti ti-plus"></i>Novo registro</button>
+          </div>
+          <table class="tbl htbl" style="width:100%">
+            <thead><tr><th style="width:130px">Data</th><th>Preço/g (R$)</th><th>Observação</th><th style="width:70px">Usar</th><th style="width:28px"></th></tr></thead>
+            <tbody>${[...sorted].reverse().map((e,ri)=>{
+              const prev2=ri<sorted.length-1?sorted[sorted.length-2-ri]:null;
+              const vp2=prev2&&prev2.preco>0?((e.preco-prev2.preco)/prev2.preco*100):null;
+              const vt2=vp2!==null?(vp2>0.01?`<span class="var-up">▲${fmtN(vp2,1)}%</span>`:vp2<-0.01?`<span class="var-dn">▼${fmtN(Math.abs(vp2),1)}%</span>`:'<span class="var-eq">—</span>'):'';
+              const isAt=Math.abs(metal.preco_grama-e.preco)<0.001;
+              return `<tr>
+                <td><input type="date" value="${e.data}" onchange="saveHist(${e.id},'data',this.value)" style="width:125px"></td>
+                <td><div style="display:flex;align-items:center;gap:6px"><input type="number" min="0" step="any" value="${e.preco}" onchange="saveHist(${e.id},'preco',this.value)" style="flex:1;font-family:var(--fm)">${vt2}</div></td>
+                <td><input value="${e.obs||''}" placeholder="Fornecedor / cotação" onchange="saveHist(${e.id},'obs',this.value)"></td>
+                <td style="text-align:center">${isAt?`<span class="chip chip-g">atual</span>`:`<button class="apply-btn" onclick="applyPreco(${mid},${e.preco})">Usar</button>`}</td>
+                <td><button class="btn-icon" onclick="delHist(${e.id})"><i class="ti ti-x"></i></button></td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(()=>drawHistChart(mid),60);
+}
+
+/* ═══════════════════════════════════════════════════
+   ABA 3 — SIMULADOR
+═══════════════════════════════════════════════════ */
+function calcSkuSim(s,precosSim){
+  const mls=skuMls[s.id]||[];
+  const ind=skuInd[s.id]||[];
+  const vol=Math.max(R(s.volume),1);
+  const mat=R(s.preco_bruto);
+  const proc=R(s.corte)+R(s.solda)+R(s.montagem)+R(s.iq_semiacabado)+R(s.trat_superficie)+R(s.pre_elos);
+  let mlsCusto=0;
+  mls.forEach(l=>{
+    const metal=metais.find(m=>m.id===l.metal_id)||metais[0];
+    const pr=precosSim[metal?.id]??metal?.preco_grama??0;
+    mlsCusto+=R(l.microns)*1e-4*R(l.area)*R(metal?.densidade)*pr;
+  });
+  const galv=mlsCusto+R(s.galvano_quebec)+R(s.galvano_ecoat)+R(s.posbanho)+R(s.banho_rodio)+R(s.banho_paladio);
+  const acab=(s.aplic_rodio==='S'?R(s.custo_aplic_rodio):0)+(s.resina==='S'?R(s.custo_resina):0)+(s.colagem==='S'?R(s.custo_colagem):0)+R(s.etiquetagem)+R(s.seriais);
+  let indT=0;
+  ind.forEach(i=>{
+    const v=R(i.valor);
+    indT+=i.tipo==='fixo_total'?v/vol:i.tipo==='por_unidade'?v:(mat+proc+galv+acab)*(v/100);
+  });
+  return mat+proc+galv+acab+indT;
+}
+function drawSimChart(dados){
+  if(chartSim){chartSim.destroy();chartSim=null;}
+  const canvas=document.getElementById('sim-chart');
+  if(!canvas)return;
+  chartSim=new Chart(canvas.getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:dados.map(d=>d.nome),
+      datasets:[
+        {label:'CPV atual',data:dados.map(d=>+d.base.toFixed(2)),backgroundColor:'rgba(15,122,91,.2)',borderColor:'#0F7A5B',borderWidth:1.5,borderRadius:5},
+        {label:'CPV simulado',data:dados.map(d=>+d.sim.toFixed(2)),backgroundColor:dados.map(d=>d.sim>d.base?'rgba(192,57,43,.2)':'rgba(15,122,91,.35)'),borderColor:dados.map(d=>d.sim>d.base?'#c0392b':'#0F7A5B'),borderWidth:1.5,borderRadius:5}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'R$'+v.toLocaleString('pt-BR',{minimumFractionDigits:0})}}}}
+  });
+}
+function renderSimulador(){
+  const precosBase={};
+  const precosSim={};
+  metais.forEach(m=>{precosBase[m.id]=m.preco_grama;precosSim[m.id]=m.preco_grama*(1+(R(simVar[m.id])/100));});
+  const dadosSku=skus.map(s=>{
+    const base=calcSkuSim(s,precosBase);
+    const sim=calcSkuSim(s,precosSim);
+    const delta=sim-base;
+    const deltaPct=base>0?delta/base*100:0;
+    const mg=R(s.margem);
+    return{nome:s.nome,base,sim,delta,deltaPct,precoAtual:mg<100?base/(1-mg/100):0,precoSim:mg<100?sim/(1-mg/100):0,margem:mg};
+  });
+  const temVar=metais.some(m=>Math.abs(R(simVar[m.id]))>0.01);
+
+  document.getElementById('tab-simulador').innerHTML=`
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-head">
+      <i class="ti ti-adjustments" style="color:var(--g);font-size:15px"></i>
+      <span class="card-title">Simulador de cenários</span>
+      <button class="reset-btn" onclick="resetSim()"><i class="ti ti-refresh"></i>Resetar</button>
+    </div>
+    <div class="card-body">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:12px">Ajuste os sliders para simular variações de preço. Os valores reais <strong>não são alterados</strong>.</p>
+      ${metais.map(m=>{
+        const v=R(simVar[m.id]);
+        const novoP=m.preco_grama*(1+v/100);
+        const cls=v>0.01?'pos':v<-0.01?'neg':'zer';
+        return `<div class="sim-metal-row">
+          <div class="color-dot" style="background:${m.cor}"></div>
+          <div style="min-width:0">
+            <div style="font-size:12px;font-weight:500">${m.nome}</div>
+            <div style="font-size:10px;color:var(--ink4)">base: ${fmt(m.preco_grama)}/g</div>
+          </div>
+          <div>
+            <input type="range" class="sim-slider" min="-50" max="100" step="1" value="${v}" oninput="simVar[${m.id}]=parseFloat(this.value);renderSimulador()">
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink4)"><span>−50%</span><span>0</span><span>+100%</span></div>
+          </div>
+          <div class="sim-pct ${cls}">${v>=0?'+':''}${fmtN(v,0)}%</div>
+          <div class="sim-novo">${fmt(novoP)}/g</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <i class="ti ti-chart-bar" style="color:var(--pk);font-size:15px"></i>
+      <span class="card-title">Impacto no CPV por SKU</span>
+    </div>
+    <div class="card-body">
+      ${!temVar?`<p style="font-size:12px;color:var(--ink4);padding:.5rem 0">Mova os sliders acima para ver o impacto nos SKUs.</p>`:`
+        <div class="sim-chart-wrap"><canvas id="sim-chart"></canvas></div>
+        <table class="sim-tbl">
+          <thead><tr>
+            <th style="text-align:left">SKU</th>
+            <th>CPV atual</th><th>CPV simulado</th>
+            <th>Δ R$</th><th>Δ %</th>
+            <th>Preço atual</th><th>Preço simulado</th>
+          </tr></thead>
+          <tbody>${dadosSku.map(d=>{
+            const up=d.delta>0.005,dn=d.delta<-0.005;
+            return `<tr>
+              <td style="font-family:var(--fn)">${d.nome}</td>
+              <td>${fmt(d.base)}</td>
+              <td style="font-weight:600;color:${up?'var(--err)':dn?'var(--ok)':'var(--ink)'}">${fmt(d.sim)}</td>
+              <td><span class="badge ${up?'badge-up':dn?'badge-dn':'badge-eq'}">${d.delta>=0?'+':''}${fmt(d.delta)}</span></td>
+              <td><span class="badge ${up?'badge-up':dn?'badge-dn':'badge-eq'}">${d.deltaPct>=0?'+':''}${fmtN(d.deltaPct,1)}%</span></td>
+              <td>${fmt(d.precoAtual)}</td>
+              <td style="font-weight:600;color:${up?'var(--err)':dn?'var(--ok)':'var(--ink)'}">${fmt(d.precoSim)}</td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      `}
+    </div>
+  </div>`;
+  if(temVar)setTimeout(()=>drawSimChart(dadosSku),60);
+}
+function resetSim(){metais.forEach(m=>{simVar[m.id]=0;});renderSimulador();}
+
+/* ═══════════════════════════════════════════════════
+   ABA 4 — SKUs / CPV
+═══════════════════════════════════════════════════ */
+function calcSku(s){
+  const mls=skuMls[s.id]||[];
+  const ind=skuInd[s.id]||[];
+  const vol=Math.max(R(s.volume),1);
+  const mat=R(s.preco_bruto);
+  const proc=R(s.corte)+R(s.solda)+R(s.montagem)+R(s.iq_semiacabado)+R(s.trat_superficie)+R(s.pre_elos);
+  let mlsTotal=0;
+  const mlsDet=mls.map(l=>{
+    const metal=metais.find(m=>m.id===l.metal_id)||metais[0]||{preco_grama:0,densidade:10};
+    const peso_g=R(l.microns)*1e-4*R(l.area)*R(metal.densidade);
+    const custo=peso_g*R(metal.preco_grama);
+    mlsTotal+=custo;
+    return{...l,metal,peso_g,custo};
+  });
+  const galv=mlsTotal+R(s.galvano_quebec)+R(s.galvano_ecoat)+R(s.posbanho)+R(s.banho_rodio)+R(s.banho_paladio);
+  const acab=(s.aplic_rodio==='S'?R(s.custo_aplic_rodio):0)+(s.resina==='S'?R(s.custo_resina):0)+(s.colagem==='S'?R(s.custo_colagem):0)+R(s.etiquetagem)+R(s.seriais);
+  let indT=0;
+  const indDet=ind.map(i=>{
+    const v=R(i.valor);
+    let u=i.tipo==='fixo_total'?v/vol:i.tipo==='por_unidade'?v:(mat+proc+galv+acab)*(v/100);
+    indT+=u;return{...i,unitario:u};
+  });
+  const total=mat+proc+galv+acab+indT;
+  const mg=R(s.margem);
+  return{mat,proc,galv,acab,ind:indT,total,precoSug:mg<100?total/(1-mg/100):0,mlsTotal,mlsDet,indDet,vol};
+}
+
+async function addSku(){
+  const {data,error}=await sb.from('cpv_skus').insert({nome:'Novo SKU',volume:100,margem:30}).select().single();
+  if(error){toast('Erro ao criar SKU','err');return;}
+  await sb.from('cpv_sku_indiretos').insert({sku_id:data.id,descricao:'',valor:0,tipo:'fixo_total',ordem:0});
+  toast('SKU criado ✓');
+  await loadAll();
+  activeSkuId=data.id;
+  render();
+}
+
+async function saveSku(){
+  const s=skus.find(x=>x.id===activeSkuId);
+  if(!s)return;
+  const {error}=await sb.from('cpv_skus').update({
+    nome:s.nome,volume:s.volume,preco_bruto:s.preco_bruto,fundicao:s.fundicao,
+    corte:s.corte,solda:s.solda,montagem:s.montagem,iq_semiacabado:s.iq_semiacabado,
+    trat_superficie:s.trat_superficie,pre_elos:s.pre_elos,
+    galvano_quebec:s.galvano_quebec,galvano_ecoat:s.galvano_ecoat,posbanho:s.posbanho,
+    banho_rodio:s.banho_rodio,banho_paladio:s.banho_paladio,
+    aplic_rodio:s.aplic_rodio,custo_aplic_rodio:s.custo_aplic_rodio,
+    resina:s.resina,custo_resina:s.custo_resina,
+    colagem:s.colagem,custo_colagem:s.custo_colagem,
+    etiquetagem:s.etiquetagem,seriais:s.seriais,margem:s.margem,
+    atualizado_em:new Date().toISOString()
+  }).eq('id',s.id);
+  if(error)toast('Erro ao salvar','err');
+  else toast('SKU salvo ✓');
+}
+
+async function delSku(id){
+  if(!confirm('Remover este SKU?'))return;
+  await sb.from('cpv_skus').update({ativo:false}).eq('id',id);
+  toast('SKU removido');
+  await loadAll();
+  activeSkuId=skus[0]?.id||null;
+  render();
+}
+
+// MLS
+async function addMlsRow(skuId){
+  if(!metais.length)return;
+  const ordem=(skuMls[skuId]||[]).length;
+  const {error}=await sb.from('cpv_sku_mls').insert({sku_id:skuId,metal_id:metais[0].id,microns:0,area:0,ordem});
+  if(error){toast('Erro','err');return;}
+  await loadAll();render();
+}
+async function delMlsRow(id){
+  await sb.from('cpv_sku_mls').delete().eq('id',id);
+  await loadAll();render();
+}
+async function saveMlsField(id,field,val){
+  const upd={};upd[field]=field==='metal_id'?parseInt(val):parseFloat(val)||0;
+  await sb.from('cpv_sku_mls').update(upd).eq('id',id);
+  await loadAll();render();
+}
+
+// INDIRETOS
+async function addIndRow(skuId){
+  const ordem=(skuInd[skuId]||[]).length;
+  await sb.from('cpv_sku_indiretos').insert({sku_id:skuId,descricao:'',valor:0,tipo:'fixo_total',ordem});
+  await loadAll();render();
+}
+async function delIndRow(id){
+  await sb.from('cpv_sku_indiretos').delete().eq('id',id);
+  await loadAll();render();
+}
+async function saveIndField(id,field,val){
+  const upd={};upd[field]=field==='valor'?parseFloat(val)||0:val;
+  await sb.from('cpv_sku_indiretos').update(upd).eq('id',id);
+  await loadAll();render();
+}
+
+function updSku(field,val){
+  const s=skus.find(x=>x.id===activeSkuId);
+  if(!s)return;
+  const numFields=['volume','preco_bruto','corte','solda','montagem','iq_semiacabado','trat_superficie','pre_elos','galvano_quebec','galvano_ecoat','posbanho','banho_rodio','banho_paladio','custo_aplic_rodio','custo_resina','custo_colagem','etiquetagem','seriais','margem'];
+  s[field]=numFields.includes(field)?parseFloat(val)||0:val;
+  // re-render apenas o sumário
+  const c=calcSku(s);
+  renderSkuSummary(s,c);
+}
+
+function renderSkuSummary(s,c){
+  const el=document.getElementById('sku-summary');
+  if(!el)return;
+  const parts=[{label:'Material bruto',v:c.mat},{label:'Processos fab.',v:c.proc},{label:'Galvano / mls',v:c.galv},{label:'Acabamentos',v:c.acab},{label:'Indiretos',v:c.ind}].filter(p=>p.v>0.001);
+  el.innerHTML=`
+    <div class="summary">
+      <div class="sum-title">📊 ${s.nome||'SKU'} &nbsp;<span style="font-size:10px;font-weight:400;opacity:.5">${c.vol} un/mês</span></div>
+      <div class="sum-grid">
+        <div class="sum-card"><div class="sum-l">Material</div><div class="sum-v">${fmt(c.mat)}</div></div>
+        <div class="sum-card"><div class="sum-l">Processos</div><div class="sum-v">${fmt(c.proc)}</div></div>
+        <div class="sum-card"><div class="sum-l">Galvano/mls</div><div class="sum-v">${fmt(c.galv)}</div></div>
+        <div class="sum-card"><div class="sum-l">Acabamentos</div><div class="sum-v">${fmt(c.acab)}</div></div>
+        <div class="sum-card"><div class="sum-l">Indiretos</div><div class="sum-v">${fmt(c.ind)}</div></div>
+        <div class="sum-card hi"><div class="sum-l">CPV / unidade</div><div class="sum-v total">${fmt(c.total)}</div></div>
+        <div class="sum-card hpk"><div class="sum-l">Preço sugerido (${pct(s.margem)})</div><div class="sum-v preco">${fmt(c.precoSug)}</div></div>
+      </div>
+      <div style="margin-top:.8rem">
+        ${parts.map(p=>`<div class="bar-row">
+          <span class="bar-lbl">${p.label}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${c.total>0?(p.v/c.total*100).toFixed(1):0}%"></div></div>
+          <span class="bar-val">${fmt(p.v)} · ${pct(c.total>0?p.v/c.total*100:0)}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function snBlock(label,sf,cf,cur,cost,sid){
+  return `<div class="sn-wrap">
+    <label style="font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em">${label}</label>
+    <div class="sn-row">
+      <button class="sn-btn ${cur==='S'?'on-s':''}" onclick="updSku('${sf}','S');this.parentNode.querySelectorAll('.sn-btn').forEach(b=>b.classList.remove('on-s','on-n'));this.classList.add('on-s');this.nextElementSibling.classList.add('on-n');renderSkus()">S</button>
+      <button class="sn-btn ${cur==='N'?'on-n':''}" onclick="updSku('${sf}','N');this.parentNode.querySelectorAll('.sn-btn').forEach(b=>b.classList.remove('on-s','on-n'));this.classList.add('on-n');this.previousElementSibling.classList.remove('on-s');renderSkus()">N</button>
+      ${cur==='S'?`<div class="sn-cost"><label>R$/un</label><input type="number" min="0" step="any" value="${cost||''}" placeholder="0,00" oninput="updSku('${cf}',this.value)"></div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderSkus(){
+  const s=skus.find(x=>x.id===activeSkuId)||skus[0];
+  if(!s){
+    document.getElementById('tab-skus').innerHTML=`<div class="card"><div class="card-body" style="text-align:center;padding:3rem"><p style="color:var(--ink3);margin-bottom:1rem">Nenhum SKU cadastrado.</p><button class="btn btn-g" onclick="addSku()"><i class="ti ti-plus"></i>Criar primeiro SKU</button></div></div>`;
+    return;
+  }
+  activeSkuId=s.id;
+  const c=calcSku(s);
+
+  document.getElementById('tab-skus').innerHTML=`
+  <div class="sku-layout">
+    <div class="sku-sidebar">
+      <div class="sku-sidebar-inner">
+        <div class="sidebar-head">SKUs</div>
+        ${skus.map(sk=>`<button class="sk-tab${sk.id===s.id?' active':''}" onclick="activeSkuId=${sk.id};renderSkus()">
+          <i class="ti ti-diamond"></i><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sk.nome||'Sem nome'}</span>
+        </button>`).join('')}
+        <div style="padding:8px 10px;border-top:1px solid var(--line2)">
+          <button class="add-link" onclick="addSku()"><i class="ti ti-plus"></i>Novo SKU</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sku-editor">
+      <div class="card">
+        <div class="card-head">
+          <i class="ti ti-diamond" style="color:var(--pk);font-size:15px"></i>
+          <span class="card-title">${s.nome}</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-g" onclick="saveSku()"><i class="ti ti-device-floppy"></i>Salvar</button>
+            <button class="btn-icon" onclick="delSku(${s.id})" title="Remover SKU"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <!-- NOME + VOLUME -->
+          <div class="g2" style="margin-bottom:.9rem">
+            <div class="fi"><label>Código / nome</label><input value="${s.nome}" oninput="updSku('nome',this.value)" placeholder="CJ0214"></div>
+            <div class="fi"><label>Volume / mês (un)</label><input type="number" min="1" value="${s.volume}" oninput="updSku('volume',this.value)"><div class="vol-hint">Base do rateio de indiretos</div></div>
+          </div>
+
+          <!-- MATERIAL -->
+          <div class="fg">
+            <div class="fg-head"><i class="ti ti-package"></i>Material bruto</div>
+            <div class="g2">
+              <div class="fi"><label>Preço do bruto (R$/un)</label><input type="number" min="0" step="any" value="${s.preco_bruto||''}" oninput="updSku('preco_bruto',this.value)" placeholder="0,00"></div>
+              <div>
+                <label style="font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em">Fundição</label>
+                <div class="sn-row" style="margin-top:3px">
+                  <button class="sn-btn ${s.fundicao==='S'?'on-s':''}" onclick="updSku('fundicao','S');renderSkus()">S</button>
+                  <button class="sn-btn ${s.fundicao!=='S'?'on-n':''}" onclick="updSku('fundicao','N');renderSkus()">N</button>
+                  <span style="font-size:10px;color:var(--ink4)">incluso no bruto</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROCESSOS -->
+          <div class="fg">
+            <div class="fg-head"><i class="ti ti-tool"></i>Processos de fabricação</div>
+            <div class="g3">
+              <div class="fi"><label>Corte (R$/un)</label><input type="number" min="0" step="any" value="${s.corte||''}" oninput="updSku('corte',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Solda (R$/un)</label><input type="number" min="0" step="any" value="${s.solda||''}" oninput="updSku('solda',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Montagem (R$/un)</label><input type="number" min="0" step="any" value="${s.montagem||''}" oninput="updSku('montagem',this.value)" placeholder="0,00"></div>
+            </div>
+            <div class="g3" style="margin-top:8px">
+              <div class="fi"><label>IQ Semiacabado</label><input type="number" min="0" step="any" value="${s.iq_semiacabado||''}" oninput="updSku('iq_semiacabado',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Trat. superfície</label><input type="number" min="0" step="any" value="${s.trat_superficie||''}" oninput="updSku('trat_superficie',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Pré-elos</label><input type="number" min="0" step="any" value="${s.pre_elos||''}" oninput="updSku('pre_elos',this.value)" placeholder="0,00"></div>
+            </div>
+          </div>
+
+          <!-- MILESIMAGEM -->
+          <div class="fg">
+            <div class="fg-head"><i class="ti ti-droplet"></i>Milesimagem de metal <span class="chip chip-g" style="margin-left:4px">µm</span></div>
+            <div class="mls-hdr"><span>Metal</span><span>Espessura µm</span><span>Área cm²</span><span>Peso dep. g</span><span>Custo</span><span></span></div>
+            ${c.mlsDet.map(l=>`<div class="mls-row">
+              <select onchange="saveMlsField(${l.id},'metal_id',this.value)">
+                ${metais.map(m=>`<option value="${m.id}"${m.id===l.metal_id?' selected':''}>${m.nome} R$${fmtN(m.preco_grama,2)}/g</option>`).join('')}
+              </select>
+              <input type="number" min="0" step="any" value="${l.microns}" placeholder="0.5" onchange="saveMlsField(${l.id},'microns',this.value)">
+              <input type="number" min="0" step="any" value="${l.area}" placeholder="4.5" onchange="saveMlsField(${l.id},'area',this.value)">
+              <div class="calc-box" style="font-size:10px">${fmtG(l.peso_g)} g</div>
+              <div class="calc-box" style="font-size:10px">${fmt(l.custo)}</div>
+              <button class="btn-icon" onclick="delMlsRow(${l.id})"><i class="ti ti-x"></i></button>
+            </div>`).join('')}
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <button class="add-link" onclick="addMlsRow(${s.id})"><i class="ti ti-plus"></i>Camada</button>
+              <span style="font-size:11px;color:var(--ink3)">Total: <strong style="font-family:var(--fm);color:var(--g)">${fmt(c.mlsTotal)}</strong></span>
+            </div>
+            <div class="g3">
+              <div class="fi"><label>Galvano Quebec</label><input type="number" min="0" step="any" value="${s.galvano_quebec||''}" oninput="updSku('galvano_quebec',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Galvano E-coat</label><input type="number" min="0" step="any" value="${s.galvano_ecoat||''}" oninput="updSku('galvano_ecoat',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Pós-banho</label><input type="number" min="0" step="any" value="${s.posbanho||''}" oninput="updSku('posbanho',this.value)" placeholder="0,00"></div>
+            </div>
+            <div class="g2" style="margin-top:8px">
+              <div class="fi"><label>Banho de ródio</label><input type="number" min="0" step="any" value="${s.banho_rodio||''}" oninput="updSku('banho_rodio',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Banho de paládio</label><input type="number" min="0" step="any" value="${s.banho_paladio||''}" oninput="updSku('banho_paladio',this.value)" placeholder="0,00"></div>
+            </div>
+          </div>
+
+          <!-- ACABAMENTOS -->
+          <div class="fg">
+            <div class="fg-head"><i class="ti ti-sparkles"></i>Acabamentos especiais</div>
+            <div class="g3">
+              ${snBlock('Aplique de ródio','aplic_rodio','custo_aplic_rodio',s.aplic_rodio,s.custo_aplic_rodio,s.id)}
+              ${snBlock('Resina','resina','custo_resina',s.resina,s.custo_resina,s.id)}
+              ${snBlock('Colagem','colagem','custo_colagem',s.colagem,s.custo_colagem,s.id)}
+            </div>
+            <div class="g2" style="margin-top:8px">
+              <div class="fi"><label>Etiquetagem (R$/un)</label><input type="number" min="0" step="any" value="${s.etiquetagem||''}" oninput="updSku('etiquetagem',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Seriais (R$/un)</label><input type="number" min="0" step="any" value="${s.seriais||''}" oninput="updSku('seriais',this.value)" placeholder="0,00"></div>
+            </div>
+          </div>
+
+          <!-- INDIRETOS -->
+          <div class="fg">
+            <div class="fg-head"><i class="ti ti-building-factory"></i>Custos indiretos <span class="chip chip-gd" style="margin-left:4px">rateados — ${c.vol} un/mês</span></div>
+            <table class="ind-tbl">
+              <thead><tr><th>Descrição</th><th style="width:110px">Valor (R$)</th><th style="width:150px">Tipo de rateio</th><th style="width:85px">R$/unidade</th><th style="width:28px"></th></tr></thead>
+              <tbody>${c.indDet.map(i=>`<tr>
+                <td><input value="${i.descricao||''}" placeholder="Ex: Energia elétrica" onchange="saveIndField(${i.id},'descricao',this.value)"></td>
+                <td><input type="number" min="0" step="any" value="${i.valor||''}" placeholder="0,00" onchange="saveIndField(${i.id},'valor',this.value)"></td>
+                <td><select onchange="saveIndField(${i.id},'tipo',this.value)">
+                  <option value="fixo_total"${i.tipo==='fixo_total'?' selected':''}>Fixo mês ÷ volume</option>
+                  <option value="por_unidade"${i.tipo==='por_unidade'?' selected':''}>Por unidade</option>
+                  <option value="pct_custo"${i.tipo==='pct_custo'?' selected':''}>% sobre custo variável</option>
+                </select></td>
+                <td style="text-align:right;font-family:var(--fm);color:var(--g);font-size:11px">${fmt(i.unitario)}</td>
+                <td><button class="btn-icon" onclick="delIndRow(${i.id})"><i class="ti ti-x"></i></button></td>
+              </tr>`).join('')}</tbody>
+            </table>
+            <button class="add-link" onclick="addIndRow(${s.id})"><i class="ti ti-plus"></i>Adicionar custo indireto</button>
+          </div>
+
+          <!-- MARGEM -->
+          <div class="fi" style="width:140px;margin-bottom:.9rem">
+            <label>Margem desejada (%)</label>
+            <input type="number" min="0" max="99" step="1" value="${s.margem}" oninput="updSku('margem',this.value)">
+          </div>
+
+          <!-- SUMMARY -->
+          <div id="sku-summary"></div>
+
+          <div class="actions">
+            <button class="btn btn-g" onclick="saveSku()"><i class="ti ti-device-floppy"></i>Salvar SKU</button>
+            <button class="btn btn-ghost" onclick="exportCSV()"><i class="ti ti-download"></i>Exportar CSV</button>
+            <button class="btn btn-pk" onclick="sendToAI(${s.id})"><i class="ti ti-robot"></i>Analisar com IA</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  renderSkuSummary(s,c);
+}
+
+/* ═══════════════════════════════════════════════════
+   ABA 5 — COMPARATIVO
+═══════════════════════════════════════════════════ */
+function renderResumo(){
+  const dados=skus.map(s=>({s,c:calcSku(s)}));
+  const maxT=Math.max(...dados.map(d=>d.c.total),0.01);
+  document.getElementById('tab-resumo').innerHTML=`
+  <div class="card">
+    <div class="card-head">
+      <i class="ti ti-chart-bar" style="color:var(--gd);font-size:15px"></i>
+      <span class="card-title">Comparativo de CPV — todos os SKUs</span>
+      <button class="btn btn-ghost" onclick="exportCSV()" style="font-size:11px;padding:5px 10px"><i class="ti ti-download"></i>Exportar CSV</button>
+    </div>
+    <div class="card-body">
+      <div style="overflow-x:auto">
+      <table class="comp-tbl">
+        <thead><tr>
+          <th style="text-align:left">SKU</th>
+          <th>Vol./mês</th><th>Material</th><th>Processos</th>
+          <th>Galvano/mls</th><th>Acabamentos</th><th>Indiretos</th>
+          <th style="color:var(--g)">CPV/un</th>
+          <th style="color:var(--pk)">Preço sug.</th>
+        </tr></thead>
+        <tbody>${dados.map(({s,c})=>`<tr onclick="activeSkuId=${s.id};goTab('skus',document.querySelectorAll('.tnav')[3])">
+          <td>${s.nome}</td>
+          <td>${c.vol}</td>
+          <td>${fmt(c.mat)}</td>
+          <td>${fmt(c.proc)}</td>
+          <td>${fmt(c.galv)}</td>
+          <td>${fmt(c.acab)}</td>
+          <td>${fmt(c.ind)}</td>
+          <td style="font-weight:600;color:var(--g)">${fmt(c.total)}</td>
+          <td style="font-weight:600;color:var(--pk)">${fmt(c.precoSug)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+      </div>
+      <div style="margin-top:1.2rem">
+        <div style="font-size:10px;color:var(--ink4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">CPV relativo por SKU</div>
+        ${dados.map(({s,c})=>`<div class="bar-row">
+          <span style="width:130px;font-size:12px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0">${s.nome}</span>
+          <div style="flex:1;height:6px;background:var(--line2);border-radius:3px;overflow:hidden"><div style="height:100%;border-radius:3px;background:linear-gradient(90deg,var(--g),var(--pk));width:${(c.total/maxT*100).toFixed(1)}%"></div></div>
+          <span style="width:90px;text-align:right;font-size:11px;font-family:var(--fm);color:var(--ink3);flex-shrink:0">${fmt(c.total)}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════ EXPORT / AI ═══════════════════ */
+function exportCSV(){
+  const h='SKU,Volume/mês,Material,Processos,Galvano/Mls,Acabamentos,Indiretos,CPV Total,Preço Sugerido,Margem%';
+  const rows=skus.map(s=>{const c=calcSku(s);return`${s.nome},${c.vol},${c.mat.toFixed(2)},${c.proc.toFixed(2)},${c.galv.toFixed(2)},${c.acab.toFixed(2)},${c.ind.toFixed(2)},${c.total.toFixed(2)},${c.precoSug.toFixed(2)},${s.margem}%`;});
+  const blob=new Blob([[h,...rows].join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cpv_pink_heart.csv';a.click();
+}
+
+function sendToAI(id){
+  const s=skus.find(x=>x.id===id);if(!s)return;
+  const c=calcSku(s);
+  const msg=`Analise o CPV do SKU "${s.nome}" (Pink Heart/Veri): material bruto R$${c.mat.toFixed(2)}, processos R$${c.proc.toFixed(2)}, galvanização/milesimagem R$${c.galv.toFixed(2)}, acabamentos R$${c.acab.toFixed(2)}, custos indiretos rateados R$${c.ind.toFixed(2)} (volume ${c.vol} un/mês), CPV total R$${c.total.toFixed(2)}, preço sugerido R$${c.precoSug.toFixed(2)} com margem de ${s.margem}%. Dê insights sobre a composição de custos e oportunidades de redução.`;
+  if(typeof sendPrompt==='function')sendPrompt(msg);
+}
+
+/* ═══════════════════ INIT ═══════════════════ */
+loadAll();
+</script>
+</body>
+</html>
