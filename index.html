@@ -1,0 +1,3792 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0D0F"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pink Heart"><title>Pink Heart · Galvânica</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Anybody:wght@300;400;600;700;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;background:#0B0D0F;overflow:hidden}
+#sel{position:fixed;inset:0;background:#0B0D0F;z-index:3000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.sel-logo{font-family:'Anybody',sans-serif;font-size:40px;font-weight:900;color:#C9922A;margin-bottom:6px;text-align:center}
+.sel-sub{font-size:11px;color:#6C7585;letter-spacing:0.2em;text-transform:uppercase;margin-bottom:52px;text-align:center}
+.sel-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.sel-card{background:#111417;border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:36px 40px;width:240px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.sel-card:hover{transform:translateY(-4px)}
+.sel-card.cpv:hover{border-color:#0F7A5B;box-shadow:0 16px 48px rgba(15,122,91,.2)}
+.sel-card.mn:hover{border-color:#C9922A;box-shadow:0 16px 48px rgba(201,146,42,.2)}
+.sel-ico{font-size:38px}.sel-name{font-family:'Anybody',sans-serif;font-size:18px;font-weight:700}
+.sel-card.cpv .sel-name{color:#4ade80}.sel-card.mn .sel-name{color:#C9922A}
+.sel-desc{font-size:11px;color:#6C7585;line-height:1.5}
+.sel-badge{font-size:9px;padding:3px 10px;border-radius:20px;font-weight:600;letter-spacing:.08em}
+.sel-card.cpv .sel-badge{background:#081A10;color:#4ade80;border:1px solid #0F4020}
+.sel-card.mn .sel-badge{background:#1A1200;color:#C9922A;border:1px solid #3D2800}
+.sel-hint{margin-top:36px;font-size:10px;color:#2A2F38;letter-spacing:.1em}
+#lgn{position:fixed;inset:0;background:#0B0D0F;z-index:2000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+.lgn-back{position:absolute;top:16px;left:16px;background:none;border:1px solid rgba(255,255,255,0.08);color:#6C7585;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:7px 14px;border-radius:6px;transition:all .15s}
+.lgn-back:hover{color:#E8ECF2;border-color:rgba(255,255,255,.2)}
+.lgn-box{background:#111417;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:40px;width:min(380px,92vw)}
+.lgn-head{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.lgn-ico{font-size:28px}.lgn-title{font-family:'Anybody',sans-serif;font-size:20px;font-weight:700}
+.lgn-title.cpv{color:#4ade80}.lgn-title.mn{color:#C9922A}
+.lgn-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.lgn-field label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#6C7585}
+.lgn-field input{background:#181B1F;border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:11px 13px;color:#E8ECF2;font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;transition:border .15s;width:100%}
+.lgn-field input:focus{border-color:#C9922A}
+.lgn-err{font-size:11px;color:#E05050;text-align:center;min-height:18px;margin-bottom:8px}
+.lgn-btn{border:none;border-radius:8px;padding:13px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;width:100%}
+.lgn-btn.cpv{background:#0F7A5B;color:#fff}.lgn-btn.mn{background:#C9922A;color:#000}
+.lgn-btn:disabled{opacity:.5;cursor:not-allowed}
+#app-cpv,#app-mn{position:fixed;inset:0;display:none;overflow:auto}
+#app-cpv.on{display:block;background:#f4f8f6}#app-mn.on{display:block;background:#0B0D0F;color:#E8ECF2}
+.sw-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;border:1px solid;cursor:pointer;font-size:10px;font-weight:500;font-family:'DM Sans',monospace;background:none;white-space:nowrap;transition:all .15s}
+.sw-btn.to-mn{color:#C9922A;border-color:rgba(201,146,42,.3)}.sw-btn.to-mn:hover{background:rgba(201,146,42,.1)}
+.sw-btn.to-cpv{color:#4ade80;border-color:rgba(15,122,91,.3)}.sw-btn.to-cpv:hover{background:rgba(15,122,91,.1)}
+
+:root{
+  --g:  #2F6B4F;
+  --g2: #1F4D38;
+  --g3: #E8F0EA;
+  --pk: #C16B86;
+  --pk2:#A04D68;
+  --pk3:#F5E9EE;
+  --gd: #B89A6A;
+  --gd2:#96793e;
+  --ink:#22332B;
+  --ink2:#2F6B4F;
+  --ink3:#5E7A6D;
+  --ink4:#94a89f;
+  --line:#D5E3DB;
+  --line2:#EAF1EC;
+  --bg: #F2F7F3;
+  --w:  #ffffff;
+  --ok: #2F6B4F;
+  --ok-bg:#E8F0EA;
+  --err:#c0392b;
+  --err-bg:#fdecea;
+  --warn:#c8901a;
+  --warn-bg:#FBF5E6;
+  --topbar:#2A4438;
+  --topbar2:#22382D;
+  --r:8px;
+  --r2:14px;
+  --sh:0 1px 4px rgba(47,107,79,.07),0 1px 2px rgba(0,0,0,.03);
+  --sh2:0 4px 20px rgba(47,107,79,.10);
+  --fn:'DM Sans',sans-serif;
+  --fm:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fn);background:var(--bg);color:var(--ink);font-size:13px;min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;height:52px;background:var(--topbar);display:flex;align-items:center;padding:0 1.5rem;gap:1rem;z-index:100;box-shadow:0 2px 12px rgba(34,56,45,.15)}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.brand-logo{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--g),var(--gd));display:flex;align-items:center;justify-content:center;font-size:16px}
+.brand-name{font-size:14px;font-weight:600;color:#fff;letter-spacing:.02em}
+.brand-sub{font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.08em;text-transform:uppercase}
+.topbar-nav{display:flex;gap:2px;margin-left:1.5rem;flex:1;overflow-x:auto}
+.topbar-nav::-webkit-scrollbar{display:none}
+.tnav{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--r);border:none;background:none;cursor:pointer;font-family:var(--fn);font-size:12px;color:rgba(255,255,255,.6);white-space:nowrap;transition:all .15s}
+.tnav:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+.tnav.active{background:rgba(255,255,255,.16);color:#fff;font-weight:500}
+.tnav i{font-size:14px}
+.topbar-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#ccc;flex-shrink:0;transition:background .3s}
+.status-dot.ok{background:#4ade80}
+.status-dot.err{background:#f87171}
+.status-txt{font-size:11px;color:rgba(255,255,255,.4)}
+
+/* ── MAIN ── */
+.main{margin-top:52px;padding:1.5rem;max-width:1280px}
+
+/* ── CARDS ── */
+.card{background:var(--w);border-radius:var(--r2);border:1px solid var(--line);box-shadow:var(--sh);overflow:hidden}
+.card-head{padding:.9rem 1.15rem;border-bottom:1px solid var(--line2);display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,var(--g3) 0%,#FBFDFB 70%,var(--w) 100%)}
+.card-title{font-size:13px;font-weight:700;color:var(--ink);flex:1}
+.card-body{padding:1.1rem}
+
+/* ── TABS CONTENT ── */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ── METAIS TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{font-size:10px;font-weight:600;color:var(--ink3);text-align:left;padding:7px 10px;border-bottom:1.5px solid var(--line);text-transform:uppercase;letter-spacing:.06em;background:var(--line2)}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--g3)}
+.tbl input,.tbl select{width:100%;padding:6px 9px;border:1px solid var(--line);border-radius:6px;font-family:var(--fn);font-size:12px;font-weight:500;background:var(--w);color:var(--ink);outline:none;transition:all .15s}
+.tbl input:focus,.tbl select:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(47,107,79,.12)}
+.color-dot{width:10px;height:10px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* ── BUTTONS ── */
+button{font-family:var(--fn);cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r);border:none;font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap}
+.btn-g{background:var(--g);color:#fff}.btn-g:hover{background:var(--g2)}
+.btn-pk{background:var(--pk);color:#fff}.btn-pk:hover{background:var(--pk2)}
+.btn-gd{background:var(--gd);color:#fff}.btn-gd:hover{background:var(--gd2)}
+.btn-ghost{background:none;border:1px solid var(--line);color:var(--ink3)}.btn-ghost:hover{background:var(--line2)}
+.btn-icon{background:none;border:none;color:var(--ink4);padding:4px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px}.btn-icon:hover{color:var(--err);background:var(--err-bg)}
+.add-link{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--g);background:none;border:none;padding:4px 0;cursor:pointer}.add-link:hover{color:var(--g2)}
+
+/* ── LAYOUT SKU ── */
+.sku-layout{display:flex;gap:1rem}
+.sku-sidebar{width:168px;flex-shrink:0}
+.sku-sidebar-inner{background:var(--w);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden}
+.sidebar-head{padding:.7rem .9rem;background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.sk-tab{display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;border:none;background:none;text-align:left;font-family:var(--fn);font-size:12px;color:var(--ink3);cursor:pointer;border-bottom:1px solid var(--line2);transition:all .12s}
+.sk-tab:last-child{border-bottom:none}
+.sk-tab.active{background:var(--g3);color:var(--g);font-weight:500}
+.sk-tab:hover:not(.active){background:var(--line2)}
+.sk-tab i{font-size:13px;flex-shrink:0}
+.sku-editor{flex:1;min-width:0}
+
+/* ── FIELDS ── */
+.fg{margin-bottom:.9rem}
+.fg-head{font-size:10px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.08em;padding:5px 0 7px;border-bottom:1.5px solid var(--line);margin-bottom:9px;display:flex;align-items:center;gap:6px}
+.fg-head i{font-size:13px;color:var(--g)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.fi label{display:block;font-size:10px;font-weight:600;color:var(--ink3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
+.fi input,.fi select{width:100%;padding:7px 10px;border:1px solid var(--line);border-radius:7px;font-family:var(--fn);font-size:13px;font-weight:500;color:var(--ink);background:var(--w);outline:none;transition:all .15s}
+.fi input:focus,.fi select:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(47,107,79,.12)}
+.calc-box{padding:7px 10px;background:var(--g3);border-radius:6px;font-size:12px;font-weight:700;color:var(--g);border:1px solid var(--line);font-family:var(--fm)}
+.vol-hint{font-size:10px;color:var(--g);margin-top:2px}
+
+/* ── SN BUTTONS ── */
+.sn-wrap{display:flex;flex-direction:column;gap:3px}
+.sn-row{display:flex;align-items:center;gap:5px;margin-top:3px}
+.sn-btn{padding:3px 10px;border-radius:20px;border:1px solid var(--line);background:none;cursor:pointer;font-size:11px;font-family:var(--fn);color:var(--ink3);transition:all .12s}
+.sn-btn.on-s{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.sn-btn.on-n{background:var(--line2);color:var(--ink3)}
+.sn-cost{flex:1;min-width:0}
+.sn-cost label{display:block;font-size:9px;color:var(--ink4);margin-bottom:2px}
+
+/* ── MLS GRID ── */
+.mls-hdr{display:grid;grid-template-columns:2fr 80px 80px 80px 80px 28px;gap:6px;margin-bottom:4px}
+.mls-hdr span{font-size:9px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink4);font-weight:500}
+.mls-row{display:grid;grid-template-columns:2fr 80px 80px 80px 80px 28px;gap:6px;align-items:center;margin-bottom:5px}
+.mls-row select,.mls-row input{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-family:var(--fn);font-size:11px;font-weight:500;color:var(--ink);background:var(--w);outline:none;transition:all .15s}
+.mls-row select:focus,.mls-row input:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(47,107,79,.1)}
+
+/* ── INDIRETOS TABLE ── */
+.ind-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px}
+.ind-tbl th{font-size:9px;font-weight:600;color:var(--ink4);text-align:left;padding:5px 7px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05em}
+.ind-tbl td{padding:4px 5px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.ind-tbl tr:last-child td{border-bottom:none}
+.ind-tbl input,.ind-tbl select{width:100%;padding:4px 7px;border:1px solid var(--line);border-radius:5px;font-family:var(--fn);font-size:11px;color:var(--ink);background:var(--w);outline:none}
+.ind-tbl input:focus,.ind-tbl select:focus{border-color:var(--g)}
+
+/* ── SUMMARY ── */
+.summary{background:linear-gradient(135deg,#FBFDFB 0%,var(--g3) 100%);border:1px solid var(--line);border-radius:var(--r2);padding:1.1rem 1.25rem;margin-top:1rem;box-shadow:var(--sh)}
+.sum-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:.7rem}
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(108px,1fr));gap:7px}
+.sum-card{background:var(--w);border:1px solid var(--line);border-radius:10px;padding:9px 11px;box-shadow:0 1px 2px rgba(47,107,79,.04)}
+.sum-card.hi{background:var(--g);border-color:var(--g)}
+.sum-card.hpk{background:var(--pk);border-color:var(--pk)}
+.sum-l{font-size:9px;color:var(--ink4);margin-bottom:3px;text-transform:uppercase;letter-spacing:.05em}
+.sum-card.hi .sum-l,.sum-card.hpk .sum-l{color:rgba(255,255,255,.75)}
+.sum-v{font-size:15px;font-weight:700;color:var(--ink);font-family:var(--fm)}
+.sum-card.hi .sum-v,.sum-card.hpk .sum-v{color:#fff}
+.sum-v.total{color:#fff;font-size:17px}
+.sum-v.preco{color:#fff;font-size:17px}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;font-size:11px}
+.bar-lbl{width:140px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.bar-track{flex:1;height:5px;background:var(--line2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--g),var(--gd))}
+.bar-val{width:110px;text-align:right;color:var(--ink3);font-family:var(--fm);font-size:10px;flex-shrink:0}
+
+/* ── CHIPS ── */
+.chip{font-size:9px;border-radius:20px;padding:2px 7px;font-weight:500;letter-spacing:.03em}
+.chip-g{background:var(--ok-bg);color:var(--ok)}
+.chip-pk{background:var(--pk3);color:var(--pk)}
+.chip-gd{background:#fef9e7;color:var(--warn)}
+.chip-ink{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
+
+/* ── HIST ── */
+.hist-layout{display:flex;gap:1rem}
+.hist-sidebar{width:168px;flex-shrink:0}
+.hist-metal-btn{display:flex;align-items:center;gap:7px;width:100%;padding:8px 10px;border:none;background:none;font-family:var(--fn);font-size:12px;color:var(--ink3);cursor:pointer;border-bottom:1px solid var(--line2);transition:all .12s;text-align:left}
+.hist-metal-btn.active{background:var(--g3);color:var(--g);font-weight:500}
+.hist-metal-btn:hover:not(.active){background:var(--line2)}
+.hcards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.hcard{background:var(--w);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.hcard-l{font-size:9px;color:var(--ink4);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.hcard-v{font-size:16px;font-weight:600;color:var(--ink);font-family:var(--fm)}
+.chart-wrap{position:relative;height:170px;margin:.8rem 0}
+.htbl th{font-size:9px;font-weight:600;color:var(--ink4);text-align:left;padding:5px 8px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.05em}
+.htbl td{padding:5px 7px;border-bottom:1px solid var(--line2);vertical-align:middle;font-size:12px}
+.htbl tr:last-child td{border-bottom:none}
+.htbl input{width:100%;padding:4px 7px;border:1px solid var(--line);border-radius:5px;font-family:var(--fn);font-size:11px;color:var(--ink);outline:none}
+.htbl input:focus{border-color:var(--g)}
+.apply-btn{font-size:11px;background:var(--g3);color:var(--g);border:1px solid var(--g);border-radius:20px;padding:3px 9px;cursor:pointer;font-weight:500}.apply-btn:hover{background:var(--g);color:#fff}
+.var-up{color:var(--err);font-size:10px;font-weight:500}
+.var-dn{color:var(--ok);font-size:10px;font-weight:500}
+.var-eq{color:var(--ink4);font-size:10px}
+
+/* ── SIMULADOR ── */
+.sim-metal-row{display:grid;grid-template-columns:12px 1fr 160px 64px 100px;gap:10px;align-items:center;padding:9px 12px;border-radius:var(--r);margin-bottom:5px;background:var(--w);border:1px solid var(--line)}
+.sim-slider{width:100%;accent-color:var(--g)}
+.sim-pct{font-size:13px;font-weight:600;font-family:var(--fm);text-align:right}
+.sim-pct.pos{color:var(--err)}.sim-pct.neg{color:var(--ok)}.sim-pct.zer{color:var(--ink4)}
+.sim-novo{font-size:11px;font-family:var(--fm);font-weight:500;color:var(--ink2);text-align:right}
+.sim-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.sim-tbl th{font-size:9px;font-weight:600;color:var(--ink4);padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;text-transform:uppercase;letter-spacing:.05em}
+.sim-tbl th:first-child{text-align:left}
+.sim-tbl td{padding:6px 8px;border-bottom:1px solid var(--line2);text-align:right;vertical-align:middle;font-family:var(--fm)}
+.sim-tbl td:first-child{text-align:left;font-family:var(--fn);font-weight:500;color:var(--ink)}
+.sim-tbl tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.badge-up{background:var(--err-bg);color:var(--err)}
+.badge-dn{background:var(--ok-bg);color:var(--ok)}
+.badge-eq{background:var(--line2);color:var(--ink4)}
+.sim-chart-wrap{position:relative;height:190px;margin:.8rem 0}
+.reset-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;background:none;border:1px solid var(--line);border-radius:20px;padding:4px 10px;cursor:pointer;color:var(--ink3)}.reset-btn:hover{background:var(--line2)}
+
+/* ── COMPARATIVO ── */
+.comp-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.comp-tbl th{font-size:9px;font-weight:600;color:var(--ink4);padding:7px 9px;border-bottom:1.5px solid var(--line);text-align:right;text-transform:uppercase;letter-spacing:.05em;background:var(--line2)}
+.comp-tbl th:first-child{text-align:left}
+.comp-tbl td{padding:7px 9px;border-bottom:1px solid var(--line2);text-align:right;vertical-align:middle;font-family:var(--fm);font-size:11px}
+.comp-tbl td:first-child{text-align:left;font-family:var(--fn);font-weight:500;color:var(--ink);font-size:12px}
+.comp-tbl tr:hover td{background:var(--g3);cursor:pointer}
+.comp-tbl tr:last-child td{border-bottom:none}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;display:flex;flex-direction:column;gap:8px;z-index:999}
+.toast{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;font-size:12px;font-weight:500;box-shadow:var(--sh2);animation:slideUp .25s ease;max-width:300px}
+.toast-ok{background:var(--ink);color:#fff;border-left:3px solid #4ade80}
+.toast-err{background:#fff;color:var(--err);border:1px solid var(--err);border-left:3px solid var(--err)}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── ACTIONS ── */
+.actions{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap}
+
+/* ── FORMULA BOX ── */
+.formula-box{background:var(--g3);border:1px solid var(--line);border-radius:var(--r);padding:9px 12px;font-size:11px;color:var(--ink2);line-height:1.65;margin-top:.7rem}
+
+#app-mn .shell{height:100vh;overflow:hidden}
+
+:root {
+  --bg:        #0B0D0F;
+  --s1:        #111417;
+  --s2:        #181B1F;
+  --s3:        #1E2228;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.12);
+  --text:      #E8ECF2;
+  --muted:     #6C7585;
+  --muted2:    #9AA3B2;
+  /* Metal palette */
+  --au:   #C9922A;  --au-bg:  #1A1200;  --au-b: #3D2800;
+  --pd:   #7AB3D4;  --pd-bg:  #071520;  --pd-b: #102840;
+  --rh:   #B8CCE0;  --rh-bg:  #0E1620;  --rh-b: #1A2A40;
+  --ag:   #C0C8D8;  --ag-bg:  #0F1318;  --ag-b: #202830;
+  --green:#3DBD7A;  --grn-bg: #081A10;
+  --red:  #E05050;  --red-bg: #1A0808;
+  --warn: #E09040;  --wrn-bg: #1A1000;
+  --blue: #4A9EE0;
+  --r: 8px;
+  --sidebar: 220px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;overflow:hidden}
+
+/* ── LAYOUT ── */
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:var(--sidebar);flex-shrink:0;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:52px;background:var(--s1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+.content{flex:1;overflow-y:auto;padding:20px}
+
+/* ── SIDEBAR ── */
+.sb-logo{padding:18px 16px 12px;border-bottom:1px solid var(--border)}
+.sb-logo-title{font-family:'Anybody',sans-serif;font-size:15px;font-weight:700;color:var(--au);letter-spacing:0.02em}
+.sb-logo-sub{font-size:9px;color:var(--muted);letter-spacing:0.15em;text-transform:uppercase;margin-top:2px}
+.sb-section{padding:8px 10px 4px;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted)}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;border-radius:6px;margin:1px 6px;transition:all .15s;font-size:12px;color:var(--muted2)}
+.sb-item:hover{background:var(--s2);color:var(--text)}
+.sb-item.active{background:var(--s3);color:var(--text);font-weight:500}
+.sb-item .ico{width:16px;text-align:center;opacity:.8}
+.sb-badge{margin-left:auto;font-size:9px;padding:2px 6px;border-radius:10px;background:var(--red-bg);color:var(--red);border:1px solid #5A1A1A}
+.sb-metal{display:flex;align-items:center;gap:8px;padding:7px 14px;margin:1px 6px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .15s;border:1px solid transparent}
+.sb-metal:hover{border-color:var(--border2)}
+.sb-metal.active{background:var(--s2);border-color:var(--border2)}
+.sb-metal-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sb-metal-val{margin-left:auto;font-size:10px;color:var(--muted)}
+.sb-sep{height:1px;background:var(--border);margin:8px 12px}
+.sb-link{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:none;margin:1px 6px;border-radius:6px;transition:all .15s}
+.sb-link:hover{background:var(--s2);color:var(--muted2)}
+
+/* ── TOPBAR ── */
+.tb-title{font-family:'Anybody',sans-serif;font-size:17px;font-weight:700;color:var(--text);flex:1}
+.tb-badge{font-size:10px;padding:4px 10px;border-radius:20px;font-weight:500}
+.badge-ok{background:var(--grn-bg);color:var(--green);border:1px solid #1A5030}
+.badge-warn{background:var(--wrn-bg);color:var(--warn);border:1px solid #4A2A00}
+.badge-crit{background:var(--red-bg);color:var(--red);border:1px solid #5A1A1A}
+.badge-metal{font-size:9px;padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:0.05em}
+.badge-Au{background:var(--au-bg);color:var(--au);border:1px solid var(--au-b)}
+.badge-Pd{background:var(--pd-bg);color:var(--pd);border:1px solid var(--pd-b)}
+.badge-Rh{background:var(--rh-bg);color:var(--rh);border:1px solid var(--rh-b)}
+.badge-Ag{background:var(--ag-bg);color:var(--ag);border:1px solid var(--ag-b)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;transition:all .15s;letter-spacing:0.02em}
+.btn-primary{background:var(--au);color:#000}
+.btn-primary:hover{background:var(--au-b);filter:brightness(1.3)}
+.btn-ghost{background:var(--s2);color:var(--muted2);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--s3);color:var(--text);border-color:var(--border2)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid #5A1A1A}
+.btn-sm{padding:5px 10px;font-size:10px}
+
+/* ── STATUS CONN ── */
+#conn-dot{width:7px;height:7px;border-radius:50%;background:var(--warn);flex-shrink:0}
+#conn-dot.ok{background:var(--green)}
+#conn-dot.err{background:var(--red)}
+#conn-lbl{font-size:10px;color:var(--muted);letter-spacing:0.05em}
+
+/* ── CARDS ── */
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:20px}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:border .15s}
+.card:hover{border-color:var(--border2)}
+.card-title{font-family:'Anybody',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.card-val{font-family:'Anybody',sans-serif;font-size:28px;font-weight:900;line-height:1;letter-spacing:-0.02em}
+.card-unit{font-size:10px;color:var(--muted);margin-top:2px}
+.card-sub{font-size:10px;color:var(--muted);margin-top:6px}
+.card-au{border-color:var(--au-b)!important;background:linear-gradient(135deg,var(--au-bg),var(--s1))}
+.card-Pd{border-color:var(--pd-b)!important;background:linear-gradient(135deg,var(--pd-bg),var(--s1))}
+.card-Rh{border-color:var(--rh-b)!important;background:linear-gradient(135deg,var(--rh-bg),var(--s1))}
+.card-Ag{border-color:var(--ag-b)!important;background:linear-gradient(135deg,var(--ag-bg),var(--s1))}
+.card-Au .card-val{color:var(--au)}
+.card-Pd .card-val{color:var(--pd)}
+.card-Rh .card-val{color:var(--rh)}
+.card-Ag .card-val{color:var(--ag)}
+
+/* ── TANQUE CARD ── */
+.tanque-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-bottom:20px}
+.tanque-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:18px;position:relative;transition:all .2s}
+.tanque-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.tanque-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.tanque-name{font-family:'Anybody',sans-serif;font-size:16px;font-weight:700}
+.tanque-metal-badge{margin-top:4px}
+.tanque-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tanque-stat{background:var(--s2);border-radius:6px;padding:10px 12px}
+.tanque-stat-label{font-size:9px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+.tanque-stat-val{font-family:'Anybody',sans-serif;font-size:18px;font-weight:700}
+.tanque-stat-unit{font-size:9px;color:var(--muted);margin-top:1px}
+
+/* BARRA DE CONCENTRAÇÃO */
+.conc-bar-wrap{margin-bottom:14px}
+.conc-bar-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);margin-bottom:4px}
+.conc-bar-track{height:6px;background:var(--s3);border-radius:3px;position:relative;overflow:visible}
+.conc-bar-fill{height:100%;border-radius:3px;transition:width .5s}
+.conc-markers{position:relative;height:10px;margin-top:2px}
+.conc-marker{position:absolute;transform:translateX(-50%);font-size:8px;color:var(--muted)}
+.conc-marker.ideal::before{content:'▲';color:var(--green);display:block;text-align:center;font-size:8px}
+
+/* ── ALERTA BANNER ── */
+.alert-banner{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:6px;margin-bottom:8px;border-left:3px solid}
+.alert-aviso{background:var(--wrn-bg);border-color:var(--warn);color:var(--warn)}
+.alert-critico{background:var(--red-bg);border-color:var(--red);color:var(--red)}
+.alert-info{background:var(--s2);border-color:var(--blue);color:var(--blue)}
+.alert-text{flex:1;font-size:11px}
+.alert-time{font-size:9px;opacity:.7}
+.alert-resolve{margin-left:8px;font-size:10px;cursor:pointer;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.05);border:none;color:inherit;cursor:pointer;font-family:'IBM Plex Mono',monospace}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:20px}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+.table-title{font-family:'Anybody',sans-serif;font-size:14px;font-weight:700}
+table{width:100%;border-collapse:collapse}
+th{font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);padding:10px 14px;text-align:left;background:var(--s2);border-bottom:1px solid var(--border)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px;color:var(--muted2)}
+td:first-child{color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--s2)}
+.td-right{text-align:right}
+.td-mono{font-family:'IBM Plex Mono',monospace}
+.td-pos{color:var(--green)}
+.td-neg{color:var(--red)}
+
+/* ── FORM / MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--s1);border:1px solid var(--border2);border-radius:12px;width:min(520px,95vw);max-height:90vh;overflow-y:auto;padding:24px}
+.modal-title{font-family:'Anybody',sans-serif;font-size:18px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+label{font-size:10px;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase}
+input,select,textarea{background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:9px 11px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;transition:border .15s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--au)}
+select option{background:var(--s2)}
+textarea{resize:vertical;min-height:60px}
+.form-sep{height:1px;background:var(--border);margin:14px 0}
+.form-section-title{font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:var(--au);margin-bottom:10px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* ── PAGE SECTIONS ── */
+.page{display:none}
+.page.active{display:block}
+.section-title{font-family:'Anybody',sans-serif;font-size:20px;font-weight:900;margin-bottom:4px;letter-spacing:-0.01em}
+.section-sub{font-size:11px;color:var(--muted);margin-bottom:20px}
+.row-space{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px}
+.toast-item{padding:10px 16px;border-radius:8px;font-size:11px;animation:slideIn .2s ease;border:1px solid}
+.toast-ok{background:var(--grn-bg);color:var(--green);border-color:#1A5030}
+.toast-err{background:var(--red-bg);color:var(--red);border-color:#5A1A1A}
+.toast-info{background:var(--s2);color:var(--text);border-color:var(--border2)}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-ico{font-size:36px;margin-bottom:12px;opacity:.4}
+.empty-txt{font-size:12px;line-height:1.6}
+
+/* ── REFORÇO URGENTE BTN ── */
+.reforco-btn{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--au-bg);border:1.5px solid var(--au-b);border-radius:8px;color:var(--au);cursor:pointer;transition:all .15s;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;width:100%}
+.reforco-btn:hover{background:var(--au-b);border-color:var(--au)}
+.reforco-btn.alerta{background:var(--red-bg);border-color:#A03030;color:var(--red)}
+.reforco-btn.alerta:hover{border-color:var(--red)}
+
+/* ── LOGIN ── */
+#login-screen{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--s1);border:1px solid var(--border2);border-radius:16px;padding:40px;width:min(380px,92vw);display:flex;flex-direction:column;gap:0}
+.login-logo{font-family:'Anybody',sans-serif;font-size:26px;font-weight:900;color:var(--au);text-align:center;margin-bottom:4px}
+.login-sub{font-size:10px;color:var(--muted);text-align:center;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:32px}
+.login-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.login-field label{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+.login-field input{background:var(--s2);border:1px solid var(--border2);border-radius:6px;padding:11px 13px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;outline:none;transition:border .15s}
+.login-field input:focus{border-color:var(--au)}
+.login-err{font-size:11px;color:var(--red);text-align:center;min-height:18px;margin-bottom:8px}
+.login-btn{background:var(--au);color:#000;border:none;border-radius:8px;padding:13px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;width:100%}
+.login-btn:hover{filter:brightness(1.15)}
+.login-btn:disabled{opacity:.5;cursor:not-allowed}
+/* ── USER AVATAR ── */
+.user-avatar{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:6px;background:var(--s2);border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.user-avatar:hover{border-color:var(--border2)}
+.user-avatar-dot{width:28px;height:28px;border-radius:50%;background:var(--au);display:flex;align-items:center;justify-content:center;font-family:'Anybody',sans-serif;font-size:12px;font-weight:700;color:#000;flex-shrink:0}
+.user-avatar-info{display:flex;flex-direction:column}
+.user-avatar-name{font-size:11px;font-weight:500;color:var(--text)}
+.user-avatar-perfil{font-size:9px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase}
+/* ── BLOQUEIO ── */
+.locked-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:10;display:flex;align-items:center;justify-content:center;border-radius:var(--r);backdrop-filter:blur(2px)}
+.locked-msg{font-size:11px;color:var(--muted2);text-align:center}
+/* ── PÁGINA USUÁRIOS ── */
+.user-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px;display:flex;align-items:center;gap:14px}
+.user-card-avatar{width:38px;height:38px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-family:'Anybody',sans-serif;font-size:15px;font-weight:700;flex-shrink:0}
+.user-card-info{flex:1}
+.user-card-name{font-family:'Anybody',sans-serif;font-size:14px;font-weight:700}
+.user-card-user{font-size:10px;color:var(--muted);margin-top:2px}
+.badge-master{background:#1A1200;color:var(--au);border:1px solid var(--au-b);font-size:9px;padding:2px 8px;border-radius:20px;font-weight:600}
+.badge-operador{background:var(--s2);color:var(--muted2);border:1px solid var(--border);font-size:9px;padding:2px 8px;border-radius:20px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--s3);border-radius:3px}
+
+/* ── MOBILE RESPONSIVO ── */
+.hamburger{display:none;background:none;border:none;cursor:pointer;padding:8px;flex-direction:column;gap:5px;flex-shrink:0}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .25s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:49}
+.sb-overlay.open{display:block}
+/* Bottom nav */
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--s1);border-top:1px solid var(--border);z-index:40}
+.bottom-nav-items{display:flex;align-items:stretch;justify-content:space-around;height:58px;padding-bottom:env(safe-area-inset-bottom,0px)}
+.bn-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 8px;cursor:pointer;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;position:relative;flex:1;transition:color .15s}
+.bn-item.active{color:var(--au)}
+.bn-item .bn-ico{font-size:20px;line-height:1}
+.bn-badge{position:absolute;top:6px;right:calc(50% - 18px);background:var(--red);color:#fff;font-size:8px;padding:1px 4px;border-radius:8px;min-width:14px;text-align:center;line-height:1.4}
+
+@media(max-width:768px){
+  html,body{overflow:auto;height:auto;min-height:100dvh}
+  .shell{flex-direction:column;min-height:100dvh;overflow:visible}
+  .sidebar{position:fixed;top:0;left:-100%;width:min(80vw,280px);height:100dvh;z-index:50;transition:left .28s ease;overflow-y:auto;padding-top:env(safe-area-inset-top,0px)}
+  .sidebar.open{left:0;box-shadow:6px 0 40px rgba(0,0,0,.7)}
+  .main{flex:1;overflow:visible}
+  .topbar{height:54px;padding:0 12px 0 4px;position:sticky;top:0;z-index:30;gap:6px;padding-top:env(safe-area-inset-top,0px)}
+  .hamburger{display:flex}
+  #conn-lbl{display:none}
+  .content{padding:14px 12px 76px;overflow:visible}
+  .bottom-nav{display:block}
+  .grid-cards{grid-template-columns:repeat(2,1fr);gap:10px}
+  .tanque-grid{grid-template-columns:1fr;gap:12px}
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:580px}
+  .section-title{font-size:17px}
+  .modal{width:100%!important;max-width:100%!important;border-radius:18px 18px 0 0;position:fixed;bottom:0;left:0;max-height:88dvh}
+  .overlay.open{align-items:flex-end}
+  .row-space{flex-direction:column;align-items:flex-start;gap:10px}
+  .row-space>.btn{width:100%}
+  .form-row{grid-template-columns:1fr!important}
+  #usuarios-list{grid-template-columns:1fr!important}
+  .user-card{flex-wrap:wrap}
+  .user-card>div:last-child{flex-direction:row;flex-wrap:wrap;margin-left:0;margin-top:10px;width:100%;gap:6px}
+  .user-card>div:last-child .btn{flex:1;min-width:0}
+  input,select,textarea{font-size:16px!important} /* evita zoom no iOS */
+}
+@media(min-width:769px){
+  .bottom-nav{display:none!important}
+  .hamburger{display:none!important}
+  .sb-overlay{display:none!important}
+}
+
+@media(max-width:600px){.sel-cards{flex-direction:column;align-items:center}.sel-card{width:100%;max-width:320px;padding:26px 22px}}
+</style></head><body>
+<div id="sel">
+  <div class="sel-logo">💎 Pink Heart</div>
+  <div class="sel-sub">Galvânica · Sistema de Gestão</div>
+  <div class="sel-cards">
+    <div class="sel-card cpv" onclick="goLogin('cpv')"><div class="sel-ico">📊</div><div class="sel-name">Sistema CPV</div><div class="sel-desc">Custo do produto vendido, SKUs, metais e simulador de preços</div><div class="sel-badge">Pink Heart · Veri</div></div>
+    <div class="sel-card mn" onclick="goLogin('mn')"><div class="sel-ico">⬡</div><div class="sel-name">Metais Nobres</div><div class="sel-desc">Controle de Au, Pd, Rh, Ag · Tanques · Reforços · Rastreabilidade</div><div class="sel-badge">Galvânica · Controle</div></div>
+  </div>
+  <div class="sel-hint">Selecione o sistema para continuar</div>
+</div>
+<div id="lgn">
+  <button class="lgn-back" onclick="goSel()">← Voltar</button>
+  <div class="lgn-box">
+    <div class="lgn-head"><span class="lgn-ico" id="lgn-ico">📊</span><span class="lgn-title" id="lgn-title">Sistema CPV</span></div>
+    <div class="lgn-field"><label>Usuário</label><input id="lgn-u" type="text" placeholder="seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('lgn-p').focus()"></div>
+    <div class="lgn-field"><label>Senha</label><input id="lgn-p" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="lgn-err" id="lgn-err"></div>
+    <button class="lgn-btn" id="lgn-btn" onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+<div id="app-cpv">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-logo">💎</div>
+    <div>
+      <div class="brand-name">Pink Heart · Veri</div>
+      <div class="brand-sub">Sistema CPV</div>
+    </div>
+  </div>
+
+  <nav class="topbar-nav">
+    <button class="tnav active" onclick="goTab('metais',this)"><i class="ti ti-table"></i>Metais</button>
+    <button class="tnav" onclick="goTab('historico',this)"><i class="ti ti-chart-line"></i>Histórico</button>
+    <button class="tnav" onclick="goTab('simulador',this)"><i class="ti ti-adjustments"></i>Simulador</button>
+    <button class="tnav" onclick="goTab('skus',this)"><i class="ti ti-diamond"></i>SKUs / CPV</button>
+    <button class="tnav" onclick="goTab('resumo',this)"><i class="ti ti-chart-bar"></i>Comparativo</button>
+  </nav>
+
+  <div class="topbar-right">
+    <div class="status-dot" id="sdot"></div>
+    <span class="status-txt" id="stxt">Conectando…</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div id="tab-metais"   class="tab-content active"></div>
+  <div id="tab-historico" class="tab-content"></div>
+  <div id="tab-simulador" class="tab-content"></div>
+  <div id="tab-skus"     class="tab-content"></div>
+  <div id="tab-resumo"   class="tab-content"></div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+
+</div>
+<div id="app-mn">
+
+<!-- ═══════════ LOGIN ═══════════ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">⬡ Metais Nobres</div>
+    <div class="login-sub">Pink Heart · Galvânica</div>
+    <div class="login-field">
+      <label>Usuário</label>
+      <input type="text" id="login-user" placeholder="seu usuário" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('login-pass').focus()">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <div class="login-err" id="login-err"></div>
+    <button class="login-btn" id="login-btn" onclick="fazerLogin()">Entrar</button>
+  </div>
+</div>
+
+<div class="shell" id="app-shell" style="display:none">
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<nav class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-title">⬡ Metais Nobres</div>
+    <div class="sb-logo-sub">Pink Heart · Galvânica</div>
+  </div>
+
+  <div class="sb-section">Módulos</div>
+  <div class="sb-item active" onclick="nav('dashboard')"><span class="ico">▦</span> Dashboard</div>
+  <div class="sb-item" onclick="nav('tanques')"><span class="ico">⊟</span> Tanques/Análises <span class="sb-badge" id="sb-alertas-count" style="display:none">0</span></div>
+  <div class="sb-item" onclick="nav('movimentos')"><span class="ico">⇅</span> Movimentações</div>
+  <div class="sb-item" onclick="nav('reforcos')"><span class="ico">⊕</span> Reforços</div>
+  <div class="sb-item" onclick="nav('alertas')"><span class="ico">⚠</span> Alertas <span class="sb-badge" id="sb-alert-badge" style="display:none">0</span></div>
+  <div class="sb-item" onclick="nav('diluicao')"><span class="ico">⇌</span> Diluição Ouro</div>
+
+  <div class="sb-sep"></div>
+  <div class="sb-section">Estoque</div>
+  <div id="sb-metals"></div>
+
+  <div class="sb-sep"></div>
+  <div class="sb-section">Config.</div>
+  <div class="sb-item" onclick="navRestrito('config-tanques','master')"><span class="ico">⚙</span> Config. Tanques</div>
+  <div class="sb-item" onclick="navRestrito('usuarios','master')"><span class="ico">👤</span> Usuários</div>
+  <div class="sb-sep"></div>
+  <!-- Usuário logado -->
+  <div style="padding:10px 10px 14px">
+    <div class="user-avatar" onclick="fazerLogout()">
+      <div class="user-avatar-dot" id="sb-user-avatar">M</div>
+      <div class="user-avatar-info">
+        <div class="user-avatar-name" id="sb-user-nome">—</div>
+        <div class="user-avatar-perfil" id="sb-user-perfil">—</div>
+      </div>
+      <span style="font-size:10px;color:var(--muted);margin-left:auto">sair</span>
+    </div>
+  </div>
+</nav>
+
+<!-- Overlay sidebar mobile -->
+<div class="sb-overlay" id="sb-overlay" onclick="fecharSidebar()"></div>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="main">
+  <div class="topbar">
+    <button class="hamburger" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="tb-title" id="tb-title">Dashboard</div>
+    <div id="conn-dot"></div>
+    <div id="conn-lbl">Conectando…</div>
+    <button class="btn btn-primary btn-sm" data-master-only onclick="openModal('mov')">+ <span>Entrada / Saída</span></button>
+    <button class="btn btn-ghost btn-sm" onclick="openModal('reforco')">⊕ <span>Reforço</span></button>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="section-title">Dashboard Geral</div>
+      <div class="section-sub">Visão consolidada dos metais nobres em estoque e status dos tanques</div>
+
+      <!-- Banner perfil operador -->
+      <div id="banner-operador" style="display:none;background:var(--s2);border:1px solid var(--border2);border-left:3px solid var(--blue);border-radius:6px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:var(--muted2)">
+        ℹ Você está logado como <strong style="color:var(--text)">Operador</strong> — acesso somente leitura. Ações de edição, lançamento e configuração são restritas ao perfil Master.
+      </div>
+
+      <!-- alertas críticos no topo -->
+      <div id="dash-alertas"></div>
+
+      <!-- Cards de estoque por metal -->
+      <div class="grid-cards" id="dash-estoque-cards"></div>
+
+      <!-- Status rápido dos tanques -->
+      <div class="row-space">
+        <span style="font-family:'Anybody',sans-serif;font-size:14px;font-weight:700">Tanques — Status</span>
+        <button class="btn btn-ghost btn-sm" onclick="nav('tanques')">Ver todos →</button>
+      </div>
+      <div class="tanque-grid" id="dash-tanques"></div>
+
+      <!-- Últimas movimentações -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Últimas Movimentações</div>
+          <button class="btn btn-ghost btn-sm" onclick="nav('movimentos')">Histórico completo →</button>
+        </div>
+        <table>
+          <thead><tr><th>Data/Hora</th><th>Metal</th><th>Tipo</th><th>Quantidade</th><th>Tanque</th><th>Responsável</th></tr></thead>
+          <tbody id="dash-mov-tbody"><tr><td colspan="6" class="empty-txt" style="text-align:center;padding:20px;color:var(--muted)">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ TANQUES / ANÁLISES ══ -->
+    <div class="page" id="page-tanques">
+      <div class="row-space">
+        <div>
+          <div class="section-title">Tanques / Análises</div>
+          <div class="section-sub">Centros de trabalho — concentração, status e alertas em tempo real</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('analise')">+ Registrar Análise</button>
+      </div>
+      <div id="tanques-alertas" style="margin-bottom:12px"></div>
+      <div class="tanque-grid" id="tanques-list" style="margin-bottom:28px"></div>
+      <!-- Tabela de análises embutida -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">Histórico de Análises</div>
+        </div>
+        <table>
+          <thead><tr><th>Data</th><th>Tanque</th><th>Empresa</th><th>Conc g/L</th><th>pH</th><th>Temp °C</th><th>Corrente (A)</th><th>Resultado</th><th>Responsável</th><th>Obs</th><th id="anal-th-acoes" style="display:none">Ações</th></tr></thead>
+          <tbody id="anal-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ MOVIMENTAÇÕES ══ -->
+    <div class="page" id="page-movimentos">
+      <div class="row-space">
+        <div>
+          <div class="section-title">Movimentações</div>
+          <div class="section-sub">Conta corrente de todos os metais nobres</div>
+        </div>
+        <button class="btn btn-primary" data-master-only onclick="openModal('mov')">+ Nova Entrada / Saída</button>
+      </div>
+      <!-- Filtros -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <select id="filt-metal" onchange="loadMovimentos()" style="width:120px">
+          <option value="">Todos metais</option>
+          <option>Au</option><option>Pd</option><option>Rh</option><option>Ag</option>
+        </select>
+        <select id="filt-tipo" onchange="loadMovimentos()" style="width:150px">
+          <option value="">Todos tipos</option>
+          <option value="entrada">Entrada</option>
+          <option value="saida">Saída</option>
+          <option value="reforco">Reforço</option>
+          <option value="recuperacao">Recuperação</option>
+          <option value="diluicao">Diluição</option>
+          <option value="ajuste">Ajuste</option>
+        </select>
+        <input type="date" id="filt-de" onchange="loadMovimentos()" style="width:140px">
+        <input type="date" id="filt-ate" onchange="loadMovimentos()" style="width:140px">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data/Hora</th><th>Metal</th><th>Tipo</th><th>Qtd (g)</th><th>Valor R$</th><th>Tanque</th><th>NF</th><th>Responsável</th><th>Obs</th><th id="mov-th-acoes" style="display:none">Ações</th></tr></thead>
+          <tbody id="mov-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ REFORÇOS ══ -->
+    <div class="page" id="page-reforcos">
+      <div class="row-space">
+        <div>
+          <div class="section-title">Reforços de Tanque</div>
+          <div class="section-sub">Histórico e rastreabilidade completa de cada reforço</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('reforco')">⊕ Registrar Reforço</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data/Hora</th><th>Tanque</th><th>Metal</th><th>Qtd (g)</th><th>Conc Antes</th><th>Conc Depois</th><th>pH</th><th>Temp °C</th><th>Motivo</th><th>Responsável</th><th id="ref-th-acoes" style="display:none">Ações</th></tr></thead>
+          <tbody id="ref-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ ALERTAS ══ -->
+    <div class="page" id="page-alertas">
+      <div class="section-title">Alertas</div>
+      <div class="section-sub">Monitoramento automático dos tanques e estoques</div>
+      <div id="alertas-list"></div>
+    </div>
+
+    <!-- ══ USUÁRIOS ══ -->
+    <div class="page" id="page-usuarios">
+      <div class="row-space">
+        <div>
+          <div class="section-title">Usuários</div>
+          <div class="section-sub">Gerenciar acessos ao sistema de metais nobres</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('usuario')">+ Novo Usuário</button>
+      </div>
+      <div id="usuarios-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px"></div>
+    </div>
+
+    <!-- ══ CONFIG TANQUES ══ -->
+    <div class="page" id="page-config-tanques">
+      <div class="row-space">
+        <div>
+          <div class="section-title">Configurar Tanques</div>
+          <div class="section-sub">Cadastro e especificações ideais de cada centro de trabalho</div>
+        </div>
+        <button class="btn btn-primary" onclick="openModal('tanque')">+ Novo Tanque</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nome</th><th>Metal</th><th>Volume (L)</th><th>Conc Ideal g/L</th><th>Conc Mín</th><th>Conc Máx</th><th>Reforço Padrão (g)</th><th>Saldo (g)</th><th>Ações</th></tr></thead>
+          <tbody id="cfg-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ DILUIÇÃO OURO ══ -->
+    <div class="page" id="page-diluicao">
+      <div class="row-space">
+        <div>
+          <div class="section-title">Diluição de Ouro</div>
+          <div class="section-sub">Conversão de Au Sólido → Au Líquido para reforço de tanques</div>
+        </div>
+        <button class="btn btn-primary" data-master-only onclick="openModal('diluicao')">⇌ Nova Diluição</button>
+      </div>
+      <!-- Cards de estado Au -->
+      <div class="grid-cards" id="diluicao-cards" style="margin-bottom:24px"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Au Sólido (g)</th><th>Au Líquido gerado (g)</th><th>Fator</th><th>Solução (mL)</th><th>Conc g/L</th><th>Responsável</th><th>Obs</th></tr></thead>
+          <tbody id="dil-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- Bottom Nav Mobile -->
+<div class="bottom-nav">
+  <div class="bottom-nav-items">
+    <div class="bn-item active" id="bn-dashboard" onclick="navMobile('dashboard')">
+      <span class="bn-ico">▦</span>Dashboard
+    </div>
+    <div class="bn-item" id="bn-tanques" onclick="navMobile('tanques')">
+      <span class="bn-ico">⊟</span>Tanques
+      <span class="bn-badge" id="bn-alert-badge" style="display:none">0</span>
+    </div>
+    <div class="bn-item" id="bn-movimentos" onclick="navMobile('movimentos')">
+      <span class="bn-ico">⇅</span>Movim.
+    </div>
+    <div class="bn-item" id="bn-reforcos" onclick="navMobile('reforcos')">
+      <span class="bn-ico">⊕</span>Reforços
+    </div>
+    <div class="bn-item" id="bn-menu" onclick="toggleSidebar()">
+      <span class="bn-ico">☰</span>Mais
+    </div>
+  </div>
+</div>
+
+</div><!-- /shell -->
+
+<!-- ═══════ MODAIS ═══════ -->
+
+<!-- USUÁRIO -->
+<div class="overlay" id="ov-usuario">
+  <div class="modal">
+    <div class="modal-title" id="usuario-modal-title">👤 <span>Novo Usuário</span></div>
+    <input type="hidden" id="u-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nome completo *</label>
+        <input type="text" id="u-nome" placeholder="ex: Marco Liberty">
+      </div>
+      <div class="form-group">
+        <label>Perfil *</label>
+        <select id="u-perfil">
+          <option value="operador">Operador</option>
+          <option value="master">Master</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Usuário (login) *</label>
+        <input type="text" id="u-username" placeholder="ex: marco" autocomplete="off">
+      </div>
+      <div class="form-group">
+        <label>Senha *</label>
+        <input type="password" id="u-senha" placeholder="mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('ov-usuario')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarUsuario()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- DILUIÇÃO OURO -->
+<div class="overlay" id="ov-diluicao">
+  <div class="modal">
+    <div class="modal-title">⇌ <span>Diluição de Ouro</span></div>
+    <div style="background:var(--au-bg);border:1px solid var(--au-b);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-size:11px;color:var(--au)">
+      ⬡ Converte <strong>Au Sólido</strong> em <strong>Au Líquido</strong> pronto para reforço de tanques
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Au Sólido consumido (g) *</label>
+        <input type="number" id="d-solido" step="0.001" placeholder="0.000" oninput="calcDiluicao()">
+      </div>
+      <div class="form-group">
+        <label>Au Líquido gerado (g) *</label>
+        <input type="number" id="d-liquido" step="0.001" placeholder="0.000" oninput="calcDiluicao()">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Volume da solução (mL)</label>
+        <input type="number" id="d-vol-ml" step="1" placeholder="0" oninput="calcDiluicao()">
+      </div>
+      <div class="form-group">
+        <label>Concentração calculada (g/L)</label>
+        <input type="number" id="d-conc-calc" step="0.01" readonly style="opacity:.6">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Responsável</label>
+        <select id="d-resp">
+          <option value="Marco Liberty">Marco Liberty</option>
+          <option value="Charles">Charles</option>
+          <option value="Anderson">Anderson</option>
+          <option value="Tamiris">Tamiris</option>
+          <option value="Erick">Erick</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Fator calculado</label>
+        <input type="number" id="d-fator" step="0.001" readonly style="opacity:.6" placeholder="—">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Observação</label>
+        <textarea id="d-obs" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('ov-diluicao')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarDiluicao()">Registrar Diluição</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDITAR REFORÇO -->
+<div class="overlay" id="ov-edit-ref">
+  <div class="modal">
+    <div class="modal-title">✏ <span>Editar Reforço</span></div>
+    <input type="hidden" id="er-id">
+    <input type="hidden" id="er-qtd-original">
+    <input type="hidden" id="er-metal">
+    <input type="hidden" id="er-tanque-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tanque</label>
+        <input type="text" id="er-tanque-nome" readonly style="opacity:.6">
+      </div>
+      <div class="form-group">
+        <label>Metal</label>
+        <input type="text" id="er-metal-show" readonly style="opacity:.6">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Quantidade (g) *</label>
+        <input type="number" id="er-qtd" step="0.001" placeholder="0.000">
+      </div>
+      <div class="form-group">
+        <label>Motivo</label>
+        <select id="er-motivo">
+          <option value="Rotina">Rotina</option>
+          <option value="Análise">Análise química</option>
+          <option value="Urgência">Urgência</option>
+          <option value="Diluição">Diluição</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Conc. Antes (g/L)</label><input type="number" id="er-conc-antes" step="0.01"></div>
+      <div class="form-group"><label>Conc. Depois (g/L)</label><input type="number" id="er-conc-depois" step="0.01"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>pH Antes</label><input type="number" id="er-ph-antes" step="0.1"></div>
+      <div class="form-group"><label>Temp °C</label><input type="number" id="er-temp" step="0.1"></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Responsável</label>
+        <select id="er-resp">
+          <option value="Marco Liberty">Marco Liberty</option>
+          <option value="Charles">Charles</option>
+          <option value="Anderson">Anderson</option>
+          <option value="Tamiris">Tamiris</option>
+          <option value="Erick">Erick</option>
+        </select>
+      </div>
+    </div>
+    <div style="background:var(--grn-bg);border:1px solid #1A5030;border-radius:6px;padding:10px 12px;font-size:10px;color:var(--green);margin-bottom:4px">
+      ✓ O saldo do tanque e do estoque serão recalculados automaticamente com a diferença.
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('ov-edit-ref')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicaoReforco()">Salvar e Recalcular</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDITAR ANÁLISE -->
+<div class="overlay" id="ov-edit-anal">
+  <div class="modal">
+    <div class="modal-title">✏ <span>Editar Análise</span></div>
+    <input type="hidden" id="ea-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tanque *</label>
+        <select id="ea-tanque"><option value="">—</option></select>
+      </div>
+      <div class="form-group">
+        <label>Resultado</label>
+        <select id="ea-resultado">
+          <option value="ok">✓ OK</option>
+          <option value="atenção">⚠ Atenção</option>
+          <option value="critico">✕ Crítico</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Empresa Analisadora</label>
+        <select id="ea-empresa">
+          <option value="">— Selecione —</option>
+          <option value="Electrogalvano">Electrogalvano</option>
+          <option value="GLGA">GLGA</option>
+          <option value="Laboratório Pink Heart">Laboratório Pink Heart</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Responsável</label>
+        <select id="ea-resp">
+          <option value="Marco Liberty">Marco Liberty</option>
+          <option value="Charles">Charles</option>
+          <option value="Anderson">Anderson</option>
+          <option value="Tamiris">Tamiris</option>
+          <option value="Erick">Erick</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Concentração (g/L)</label><input type="number" id="ea-conc" step="0.01"></div>
+      <div class="form-group"><label>pH</label><input type="number" id="ea-ph" step="0.1"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Temperatura (°C)</label><input type="number" id="ea-temp" step="0.1"></div>
+      <div class="form-group"><label>Corrente (A)</label><input type="number" id="ea-corr" step="0.1"></div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group"><label>Observação</label><textarea id="ea-obs" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('ov-edit-anal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicaoAnalise()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDITAR MOVIMENTAÇÃO -->
+<div class="overlay" id="ov-edit-mov">
+  <div class="modal">
+    <div class="modal-title">✏ <span>Editar Movimentação</span></div>
+    <input type="hidden" id="em-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Metal</label>
+        <select id="em-metal"><option value="">—</option><option>Au</option><option>Pd</option><option>Rh</option><option>Ag</option></select>
+      </div>
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="em-tipo">
+          <option value="entrada">Entrada (Compra)</option>
+          <option value="recuperacao">Entrada (Recuperação)</option>
+          <option value="saida">Saída</option>
+          <option value="reforco">Reforço</option>
+          <option value="diluicao">Diluição</option>
+          <option value="ajuste">Ajuste</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Quantidade (g) *</label>
+        <input type="number" id="em-qtd" step="0.001" placeholder="0.000">
+      </div>
+      <div class="form-group">
+        <label>Valor Total (R$)</label>
+        <input type="number" id="em-valor" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nota Fiscal</label>
+        <input type="text" id="em-nf" placeholder="NF-12345">
+      </div>
+      <div class="form-group">
+        <label>Responsável</label>
+        <select id="em-resp">
+          <option value="Marco Liberty">Marco Liberty</option>
+          <option value="Charles">Charles</option>
+          <option value="Anderson">Anderson</option>
+          <option value="Tamiris">Tamiris</option>
+          <option value="Erick">Erick</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Observação</label>
+        <textarea id="em-obs" rows="2"></textarea>
+      </div>
+    </div>
+    <div style="background:var(--grn-bg);border:1px solid #1A5030;border-radius:6px;padding:10px 12px;font-size:10px;color:var(--green);margin-bottom:4px">
+      ✓ O saldo do estoque e do tanque serão recalculados automaticamente com base na diferença.
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('ov-edit-mov')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicaoMovimento()">Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOVIMENTAÇÃO -->
+<div class="overlay" id="ov-mov">
+  <div class="modal">
+    <div class="modal-title">⇅ <span>Nova Movimentação</span></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Metal *</label>
+        <select id="m-metal" onchange="toggleEstadoAu()"><option value="">—</option><option>Au</option><option>Pd</option><option>Rh</option><option>Ag</option></select>
+      </div>
+      <div class="form-group">
+        <label>Tipo *</label>
+        <select id="m-tipo" onchange="toggleEstadoAu()">
+          <option value="entrada">Entrada (Compra)</option>
+          <option value="recuperacao">Entrada (Recuperação)</option>
+          <option value="saida">Saída</option>
+          <option value="ajuste">Ajuste de Estoque</option>
+        </select>
+      </div>
+    </div>
+    <!-- Estado Au — só aparece quando metal = Au -->
+    <div class="form-row full" id="row-estado-au" style="display:none">
+      <div class="form-group">
+        <label>Estado do Ouro *</label>
+        <select id="m-estado-au">
+          <option value="solido">⬡ Sólido — entrada via compra ou recuperação</option>
+          <option value="liquido">◈ Líquido — já diluído, pronto para tanque</option>
+        </select>
+      </div>
+    </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Quantidade (g) *</label>
+        <input type="number" id="m-qtd" step="0.001" placeholder="0.000">
+      </div>
+      <div class="form-group">
+        <label>Preço/g (R$)</label>
+        <input type="number" id="m-preco" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tanque (destino/origem)</label>
+        <select id="m-tanque"><option value="">— Nenhum —</option></select>
+      </div>
+      <div class="form-group">
+        <label>Nota Fiscal</label>
+        <input type="text" id="m-nf" placeholder="NF-12345">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Responsável</label>
+        <select id="m-resp">
+          <option value="Marco Liberty">Marco Liberty</option>
+          <option value="Charles">Charles</option>
+          <option value="Anderson">Anderson</option>
+          <option value="Tamiris">Tamiris</option>
+          <option value="Erick">Erick</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Observação</label>
+        <textarea id="m-obs" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('ov-mov')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarMovimentacao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- REFORÇO -->
+<div class="overlay" id="ov-reforco">
+  <div class="modal">
+    <div class="modal-title">⊕ <span>Registrar Reforço</span></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tanque *</label>
+        <select id="r-tanque" onchange="preencherMetalReforco()"><option value="">—</option></select>
+      </div>
+      <div class="form-group">
+        <label>Metal</label>
+        <input type="text" id="r-metal" readonly style="opacity:.6">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Quantidade (g) *</label>
+        <input type="number" id="r-qtd" step="0.001" placeholder="0.000">
+      </div>
+      <div class="form-group">
+        <label>Motivo</label>
+        <select id="r-motivo">
+          <option value="Rotina">Rotina</option>
+          <option value="Análise">Análise química</option>
+          <option value="Urgência">Urgência — conc. baixa</option>
+          <option value="Diluição">Diluição</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-sep"></div>
+    <div class="form-section-title">Medições do banho (opcional mas recomendado)</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Conc. Antes (g/L)</label>
+        <input type="number" id="r-conc-antes" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Conc. Depois (g/L)</label>
+        <input type="number" id="r-conc-depois" step="0.01">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>pH Antes</label>
+        <input type="number" id="r-ph-antes" step="0.1">
+      </div>
+      <div class="form-group">
+        <label>pH Depois</label>
+        <input type="number" id="r-ph-depois" step="0.1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Temperatura °C</label>
+        <input type="number" id="r-temp" step="0.1">
+      </div>
+      <div class="form-group">
+        <label>Responsável</label>
+        <select id="r-resp">
+          <option value="Marco Liberty">Marco Liberty</option>
+          <option value="Charles">Charles</option>
+          <option value="Anderson">Anderson</option>
+          <option value="Tamiris">Tamiris</option>
+          <option value="Erick">Erick</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Observação</label>
+        <textarea id="r-obs" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('ov-reforco')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarReforco()">Registrar Reforço</button>
+    </div>
+  </div>
+</div>
+
+<!-- ANÁLISE -->
+<div class="overlay" id="ov-analise">
+  <div class="modal">
+    <div class="modal-title">◈ <span>Registrar Análise</span></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tanque *</label>
+        <select id="a-tanque"><option value="">—</option></select>
+      </div>
+      <div class="form-group">
+        <label>Resultado</label>
+        <select id="a-resultado">
+          <option value="ok">✓ OK</option>
+          <option value="atenção">⚠ Atenção</option>
+          <option value="critico">✕ Crítico</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Empresa Analisadora</label>
+        <select id="a-empresa">
+          <option value="">— Selecione —</option>
+          <option value="Electrogalvano">Electrogalvano</option>
+          <option value="GLGA">GLGA</option>
+          <option value="Laboratório Pink Heart">Laboratório Pink Heart</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Responsável</label>
+        <select id="a-resp">
+          <option value="Marco Liberty">Marco Liberty</option>
+          <option value="Charles">Charles</option>
+          <option value="Anderson">Anderson</option>
+          <option value="Tamiris">Tamiris</option>
+          <option value="Erick">Erick</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Concentração (g/L)</label>
+        <input type="number" id="a-conc" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>pH</label>
+        <input type="number" id="a-ph" step="0.1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Temperatura (°C)</label>
+        <input type="number" id="a-temp" step="0.1">
+      </div>
+      <div class="form-group">
+        <label>Corrente (A)</label>
+        <input type="number" id="a-corr" step="0.1">
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="form-group">
+        <label>Observação</label>
+        <textarea id="a-obs" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('ov-analise')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarAnalise()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TANQUE CONFIG -->
+<div class="overlay" id="ov-tanque">
+  <div class="modal">
+    <div class="modal-title" id="tanque-modal-title">⊟ <span>Novo Tanque</span></div>
+    <input type="hidden" id="t-id">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nome do Tanque *</label>
+        <input type="text" id="t-nome" placeholder="ex: Ouro 24K — Linha 1">
+      </div>
+      <div class="form-group">
+        <label>Metal *</label>
+        <select id="t-metal"><option value="">—</option><option>Au</option><option>Pd</option><option>Rh</option><option>Ag</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Volume (litros)</label>
+        <input type="number" id="t-vol" step="0.1" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Descrição</label>
+        <input type="text" id="t-desc">
+      </div>
+    </div>
+    <div class="form-sep"></div>
+    <div class="form-section-title">Especificações Ideais</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Conc. Ideal (g/L)</label>
+        <input type="number" id="t-conc-ideal" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Conc. Mínima (g/L)</label>
+        <input type="number" id="t-conc-min" step="0.01">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Conc. Máxima (g/L)</label>
+        <input type="number" id="t-conc-max" step="0.01">
+      </div>
+      <div class="form-group">
+        <label>Temp. Ideal (°C)</label>
+        <input type="number" id="t-temp" step="0.1">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>pH Ideal</label>
+        <input type="number" id="t-ph" step="0.1">
+      </div>
+      <div class="form-group">
+        <label>pH Mín — Máx</label>
+        <div style="display:flex;gap:6px">
+          <input type="number" id="t-ph-min" step="0.1" placeholder="Mín">
+          <input type="number" id="t-ph-max" step="0.1" placeholder="Máx">
+        </div>
+      </div>
+    </div>
+    <div class="form-sep"></div>
+    <div class="form-section-title">Reposição</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Reforço Padrão (g)</label>
+        <input type="number" id="t-ref-padrao" step="0.001">
+      </div>
+      <div class="form-group">
+        <label>Intervalo Máx Reforço (h)</label>
+        <input type="number" id="t-intervalo" step="1" placeholder="horas">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('ov-tanque')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarTanque()">Salvar Tanque</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+
+</div>
+<script>
+/* ═══════════════════ SUPABASE ═══════════════════ */
+const _CU = 'https://khzviafgkswyajrdnbyp.supabase.co';
+const _CK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoenZpYWZna3N3eWFqcmRuYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NTU3ODgsImV4cCI6MjA5NDAzMTc4OH0.OJE1NwBZVWmx2oNJU6PjDPWVP-c2SDocTdfLoyaIoaE';
+const sbC = supabase.createClient(_CU,_CK,{auth:{storageKey:'cpv-k',autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});
+
+/* ═══════════════════ HELPERS ═══════════════════ */
+const R   = v => isNaN(v)||v===null||v===''?0:Number(v);
+const fmt = v => 'R$ '+R(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN= (v,d=2)=>R(v).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtG= v=>R(v).toLocaleString('pt-BR',{minimumFractionDigits:4,maximumFractionDigits:4});
+const pct = v=>R(v).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%';
+const today=()=>new Date().toISOString().slice(0,10);
+
+function toast(msg,type='ok'){
+  const w=document.getElementById('toasts');
+  const d=document.createElement('div');
+  d.className=`toast toast-${type}`;
+  d.innerHTML=`<i class="ti ti-${type==='ok'?'check':'alert-circle'}"></i>${msg}`;
+  w.appendChild(d);
+  setTimeout(()=>d.remove(),3200);
+}
+
+function setStatus(ok){
+  document.getElementById('sdot').className='status-dot '+(ok?'ok':'err');
+  document.getElementById('stxt').textContent=ok?'Conectado':'Erro BD';
+}
+
+/* ═══════════════════ STATE ═══════════════════ */
+let metais   = [];
+let historico= {}; // {metalId:[...]}
+let skus     = [];
+let skuMls   = {}; // {skuId:[...]}
+let skuInd   = {}; // {skuId:[...]}
+let simVar   = {};
+let curTab   = 'metais';
+let histMid  = null;
+let activeSkuId = null;
+let chartH   = null;
+let chartSim = null;
+
+/* ═══════════════════ SUPABASE LOAD ═══════════════════ */
+async function loadAll(){
+  try{
+    const [m,h,s,ml,in_] = await Promise.all([
+      sbC.from('cpv_metais').select('*').eq('ativo',true).order('id'),
+      sbC.from('cpv_metais_historico').select('*').order('data'),
+      sbC.from('cpv_skus').select('*').eq('ativo',true).order('id'),
+      sbC.from('cpv_sku_mls').select('*').order('ordem'),
+      sbC.from('cpv_sku_indiretos').select('*').order('ordem'),
+    ]);
+    if(m.error||h.error||s.error||ml.error||in_.error) throw m.error||h.error||s.error||ml.error||in_.error;
+    metais = m.data||[];
+    historico={};
+    (h.data||[]).forEach(e=>{if(!historico[e.metal_id])historico[e.metal_id]=[];historico[e.metal_id].push(e);});
+    skus   = s.data||[];
+    skuMls ={};
+    (ml.data||[]).forEach(l=>{if(!skuMls[l.sku_id])skuMls[l.sku_id]=[];skuMls[l.sku_id].push(l);});
+    skuInd ={};
+    (in_.data||[]).forEach(i=>{if(!skuInd[i.sku_id])skuInd[i.sku_id]=[];skuInd[i.sku_id].push(i);});
+    metais.forEach(m=>{if(simVar[m.id]===undefined)simVar[m.id]=0;});
+    if(!histMid&&metais.length)histMid=metais[0].id;
+    if(!activeSkuId&&skus.length)activeSkuId=skus[0].id;
+    setStatus(true);
+    render();
+  }catch(e){
+    setStatus(false);
+    toast('Erro ao carregar dados','err');
+    console.error(e);
+  }
+}
+
+/* ═══════════════════ NAVIGATION ═══════════════════ */
+function goTab(t,el){
+  curTab=t;
+  document.querySelectorAll('.tnav').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  render();
+}
+function render(){
+  if(curTab==='metais')    renderMetais();
+  else if(curTab==='historico') renderHistorico();
+  else if(curTab==='simulador') renderSimulador();
+  else if(curTab==='skus') renderSkus();
+  else if(curTab==='resumo') renderResumo();
+}
+
+/* ═══════════════════════════════════════════════════
+   ABA 1 — METAIS
+═══════════════════════════════════════════════════ */
+async function saveMetal(m){
+  const {error}=await sbC.from('cpv_metais').update({
+    nome:m.nome,cor:m.cor,preco_grama:m.preco_grama,
+    densidade:m.densidade,atualizado_em:new Date().toISOString()
+  }).eq('id',m.id);
+  if(error)toast('Erro ao salvar metal','err');
+  else toast('Metal salvo ✓');
+}
+
+async function addMetal(){
+  const {data,error}=await sbC.from('cpv_metais').insert({nome:'Novo metal',cor:'#888888',preco_grama:0,densidade:10}).select().single();
+  if(error){toast('Erro ao adicionar','err');return;}
+  await sbC.from('cpv_metais_historico').insert({metal_id:data.id,data:today(),preco:0,obs:'Cadastro inicial'});
+  toast('Metal adicionado ✓');
+  await loadAll();
+}
+
+async function delMetal(id){
+  if(!confirm('Remover este metal?'))return;
+  await sbC.from('cpv_metais').update({ativo:false}).eq('id',id);
+  toast('Metal removido');
+  await loadAll();
+}
+
+function renderMetais(){
+  const el=document.getElementById('tab-metais');
+  el.innerHTML=`
+  <div class="card">
+    <div class="card-head">
+      <i class="ti ti-table" style="color:var(--g);font-size:15px"></i>
+      <span class="card-title">Tabela de metais</span>
+      <button class="btn btn-g btn-sm" onclick="addMetal()" style="font-size:11px;padding:5px 10px"><i class="ti ti-plus"></i>Adicionar</button>
+    </div>
+    <div class="card-body">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:12px">Preços base usados no cálculo de milesimagem. Atualize e clique em <strong>Salvar</strong> para registrar no banco.</p>
+      <table class="tbl">
+        <thead><tr>
+          <th style="width:14px"></th>
+          <th>Metal / liga</th>
+          <th style="width:160px">Preço/g (R$)</th>
+          <th style="width:150px">Densidade (g/cm³)</th>
+          <th style="width:70px">Var.</th>
+          <th style="width:70px">Salvar</th>
+          <th style="width:28px"></th>
+        </tr></thead>
+        <tbody id="metais-tbody"></tbody>
+      </table>
+      <div class="formula-box" style="margin-top:1rem">
+        <strong>Fórmula milesimagem (µm):</strong> Peso (g) = espessura (µm) × 10⁻⁴ × área (cm²) × densidade (g/cm³) &nbsp;·&nbsp; Custo = peso × preço/g
+      </div>
+    </div>
+  </div>`;
+  const tbody=document.getElementById('metais-tbody');
+  metais.forEach(m=>{
+    const hist=(historico[m.id]||[]).slice().sort((a,b)=>a.data.localeCompare(b.data));
+    const prev=hist.length>=2?hist[hist.length-2]:null;
+    const vp=prev&&prev.preco>0?((m.preco_grama-prev.preco)/prev.preco*100):null;
+    const varHtml=vp!==null?(vp>0.01?`<span class="var-up">▲${fmtN(vp,1)}%</span>`:vp<-0.01?`<span class="var-dn">▼${fmtN(Math.abs(vp),1)}%</span>`:'<span class="var-eq">—</span>'):'<span class="var-eq">—</span>';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><div class="color-dot" style="background:${m.cor}"></div></td>
+      <td><input id="mn-${m.id}" value="${m.nome}" style="width:100%"></td>
+      <td><input id="mp-${m.id}" type="number" min="0" step="any" value="${m.preco_grama}" style="width:100%;font-family:var(--fm)"></td>
+      <td><input id="md-${m.id}" type="number" min="0" step="any" value="${m.densidade}" style="width:100%;font-family:var(--fm)"></td>
+      <td>${varHtml}</td>
+      <td><button class="btn btn-g" style="font-size:10px;padding:4px 9px" onclick="saveMetalById(${m.id})"><i class="ti ti-check"></i>Salvar</button></td>
+      <td><button class="btn-icon" onclick="delMetal(${m.id})"><i class="ti ti-trash"></i></button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+async function saveMetalById(id){
+  const m=metais.find(x=>x.id===id);
+  m.nome=document.getElementById(`mn-${id}`).value;
+  m.preco_grama=parseFloat(document.getElementById(`mp-${id}`).value)||0;
+  m.densidade=parseFloat(document.getElementById(`md-${id}`).value)||0;
+  await saveMetal(m);
+  // adicionar ao histórico se preço mudou
+  const hist=(historico[id]||[]).slice().sort((a,b)=>a.data.localeCompare(b.data));
+  const last=hist[hist.length-1];
+  if(!last||Math.abs(last.preco-m.preco_grama)>0.0001){
+    await sbC.from('cpv_metais_historico').insert({metal_id:id,data:today(),preco:m.preco_grama,obs:'Atualização'});
+  }
+  await loadAll();
+}
+
+/* ═══════════════════════════════════════════════════
+   ABA 2 — HISTÓRICO
+═══════════════════════════════════════════════════ */
+async function addHistEntry(mid){
+  const m=metais.find(x=>x.id===mid);
+  const {error}=await sbC.from('cpv_metais_historico').insert({metal_id:mid,data:today(),preco:m?m.preco_grama:0,obs:''});
+  if(error){toast('Erro','err');return;}
+  await loadAll();
+}
+async function saveHist(id,field,val){
+  const upd={};
+  upd[field]=field==='preco'?parseFloat(val)||0:val;
+  await sbC.from('cpv_metais_historico').update(upd).eq('id',id);
+}
+async function delHist(id){
+  await sbC.from('cpv_metais_historico').delete().eq('id',id);
+  toast('Registro removido');
+  await loadAll();
+}
+async function applyPreco(mid,preco){
+  const m=metais.find(x=>x.id===mid);
+  if(!m)return;
+  m.preco_grama=preco;
+  await sbC.from('cpv_metais').update({preco_grama:preco,atualizado_em:new Date().toISOString()}).eq('id',mid);
+  toast(`Preço atualizado → ${fmt(preco)}/g`);
+  await loadAll();
+}
+function drawHistChart(mid){
+  const sorted=(historico[mid]||[]).slice().sort((a,b)=>a.data.localeCompare(b.data));
+  if(!sorted.length)return;
+  const metal=metais.find(x=>x.id===mid);
+  if(chartH){chartH.destroy();chartH=null;}
+  const canvas=document.getElementById('hist-chart');
+  if(!canvas)return;
+  chartH=new Chart(canvas.getContext('2d'),{
+    type:'line',
+    data:{
+      labels:sorted.map(e=>new Date(e.data+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})),
+      datasets:[{label:'R$/g',data:sorted.map(e=>e.preco),borderColor:metal?metal.cor:'#0F7A5B',backgroundColor:(metal?metal.cor:'#0F7A5B')+'22',borderWidth:2,pointRadius:4,pointBackgroundColor:metal?metal.cor:'#0F7A5B',fill:true,tension:0.35}]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'R$ '+c.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2})+'/g'}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'R$'+v.toLocaleString('pt-BR',{minimumFractionDigits:0})}}}}
+  });
+}
+function renderHistorico(){
+  const mid=histMid||(metais[0]?.id);
+  if(!mid)return;
+  const sorted=(historico[mid]||[]).slice().sort((a,b)=>a.data.localeCompare(b.data));
+  const metal=metais.find(x=>x.id===mid)||{};
+  const minP=sorted.length?Math.min(...sorted.map(e=>e.preco)):0;
+  const maxP=sorted.length?Math.max(...sorted.map(e=>e.preco)):0;
+  const f=sorted[0],l=sorted[sorted.length-1];
+  const vt=f&&l&&f.preco>0?((l.preco-f.preco)/f.preco*100):0;
+
+  document.getElementById('tab-historico').innerHTML=`
+  <div class="card">
+    <div class="card-head">
+      <i class="ti ti-chart-line" style="color:var(--g);font-size:15px"></i>
+      <span class="card-title">Histórico de preços</span>
+    </div>
+    <div class="card-body">
+      <div class="hist-layout">
+        <div class="hist-sidebar">
+          <div class="sku-sidebar-inner">
+            <div class="sidebar-head">Metal</div>
+            ${metais.map(m=>`<button class="hist-metal-btn${m.id===mid?' active':''}" onclick="histMid=${m.id};renderHistorico()">
+              <div class="color-dot" style="background:${m.cor}"></div>${m.nome}
+            </button>`).join('')}
+          </div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:.8rem">
+            <div class="color-dot" style="background:${metal.cor};width:12px;height:12px"></div>
+            <span style="font-size:15px;font-weight:600;color:var(--ink)">${metal.nome}</span>
+            <span style="font-size:12px;color:var(--ink3)">atual: <strong style="font-family:var(--fm)">${fmt(metal.preco_grama)}/g</strong></span>
+          </div>
+          <div class="hcards">
+            <div class="hcard"><div class="hcard-l">Mínimo</div><div class="hcard-v">${fmt(minP)}</div></div>
+            <div class="hcard"><div class="hcard-l">Máximo</div><div class="hcard-v">${fmt(maxP)}</div></div>
+            <div class="hcard"><div class="hcard-l">Variação total</div><div class="hcard-v" style="color:${vt>0?'var(--err)':vt<0?'var(--ok)':'var(--ink)'}">${vt>=0?'+':''}${fmtN(vt,1)}%</div></div>
+            <div class="hcard"><div class="hcard-l">Registros</div><div class="hcard-v">${sorted.length}</div></div>
+          </div>
+          <div class="chart-wrap"><canvas id="hist-chart"></canvas></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <span style="font-size:12px;font-weight:600;color:var(--ink)">Registros de preço</span>
+            <button class="add-link" onclick="addHistEntry(${mid})"><i class="ti ti-plus"></i>Novo registro</button>
+          </div>
+          <table class="tbl htbl" style="width:100%">
+            <thead><tr><th style="width:130px">Data</th><th>Preço/g (R$)</th><th>Observação</th><th style="width:70px">Usar</th><th style="width:28px"></th></tr></thead>
+            <tbody>${[...sorted].reverse().map((e,ri)=>{
+              const prev2=ri<sorted.length-1?sorted[sorted.length-2-ri]:null;
+              const vp2=prev2&&prev2.preco>0?((e.preco-prev2.preco)/prev2.preco*100):null;
+              const vt2=vp2!==null?(vp2>0.01?`<span class="var-up">▲${fmtN(vp2,1)}%</span>`:vp2<-0.01?`<span class="var-dn">▼${fmtN(Math.abs(vp2),1)}%</span>`:'<span class="var-eq">—</span>'):'';
+              const isAt=Math.abs(metal.preco_grama-e.preco)<0.001;
+              return `<tr>
+                <td><input type="date" value="${e.data}" onchange="saveHist(${e.id},'data',this.value)" style="width:125px"></td>
+                <td><div style="display:flex;align-items:center;gap:6px"><input type="number" min="0" step="any" value="${e.preco}" onchange="saveHist(${e.id},'preco',this.value)" style="flex:1;font-family:var(--fm)">${vt2}</div></td>
+                <td><input value="${e.obs||''}" placeholder="Fornecedor / cotação" onchange="saveHist(${e.id},'obs',this.value)"></td>
+                <td style="text-align:center">${isAt?`<span class="chip chip-g">atual</span>`:`<button class="apply-btn" onclick="applyPreco(${mid},${e.preco})">Usar</button>`}</td>
+                <td><button class="btn-icon" onclick="delHist(${e.id})"><i class="ti ti-x"></i></button></td>
+              </tr>`;
+            }).join('')}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(()=>drawHistChart(mid),60);
+}
+
+/* ═══════════════════════════════════════════════════
+   ABA 3 — SIMULADOR
+═══════════════════════════════════════════════════ */
+function calcSkuSim(s,precosSim){
+  const mls=skuMls[s.id]||[];
+  const ind=skuInd[s.id]||[];
+  const vol=Math.max(R(s.volume),1);
+  const mat=R(s.preco_bruto);
+  const proc=R(s.corte)+R(s.solda)+R(s.montagem);
+  let mlsCusto=0;
+  mls.forEach(l=>{
+    const metal=metais.find(m=>m.id===l.metal_id)||metais[0];
+    const pr=precosSim[metal?.id]??metal?.preco_grama??0;
+    mlsCusto+=R(l.microns)*1e-4*R(l.area)*R(metal?.densidade)*pr;
+  });
+  const galv=mlsCusto+R(s.banho_rodio)+R(s.banho_paladio);
+  const acab=(s.aplic_rodio==='S'?R(s.custo_aplic_rodio):0)+(s.resina==='S'?R(s.custo_resina):0)+(s.colagem==='S'?R(s.custo_colagem):0);
+  let indT=0;
+  ind.forEach(i=>{
+    const v=R(i.valor);
+    indT+=i.tipo==='fixo_total'?v/vol:i.tipo==='por_unidade'?v:(mat+proc+galv+acab)*(v/100);
+  });
+  return mat+proc+galv+acab+indT;
+}
+function drawSimChart(dados){
+  if(chartSim){chartSim.destroy();chartSim=null;}
+  const canvas=document.getElementById('sim-chart');
+  if(!canvas)return;
+  chartSim=new Chart(canvas.getContext('2d'),{
+    type:'bar',
+    data:{
+      labels:dados.map(d=>d.nome),
+      datasets:[
+        {label:'CPV atual',data:dados.map(d=>+d.base.toFixed(2)),backgroundColor:'rgba(15,122,91,.2)',borderColor:'#0F7A5B',borderWidth:1.5,borderRadius:5},
+        {label:'CPV simulado',data:dados.map(d=>+d.sim.toFixed(2)),backgroundColor:dados.map(d=>d.sim>d.base?'rgba(192,57,43,.2)':'rgba(15,122,91,.35)'),borderColor:dados.map(d=>d.sim>d.base?'#c0392b':'#0F7A5B'),borderWidth:1.5,borderRadius:5}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10}}},scales:{x:{grid:{display:false},ticks:{font:{size:10}}},y:{ticks:{font:{size:10},callback:v=>'R$'+v.toLocaleString('pt-BR',{minimumFractionDigits:0})}}}}
+  });
+}
+function renderSimulador(){
+  const precosBase={};
+  const precosSim={};
+  metais.forEach(m=>{precosBase[m.id]=m.preco_grama;precosSim[m.id]=m.preco_grama*(1+(R(simVar[m.id])/100));});
+  const dadosSku=skus.map(s=>{
+    const base=calcSkuSim(s,precosBase);
+    const sim=calcSkuSim(s,precosSim);
+    const delta=sim-base;
+    const deltaPct=base>0?delta/base*100:0;
+    return{nome:s.nome,base,sim,delta,deltaPct};
+  });
+  const temVar=metais.some(m=>Math.abs(R(simVar[m.id]))>0.01);
+
+  document.getElementById('tab-simulador').innerHTML=`
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-head">
+      <i class="ti ti-adjustments" style="color:var(--g);font-size:15px"></i>
+      <span class="card-title">Simulador de cenários</span>
+      <button class="reset-btn" onclick="resetSim()"><i class="ti ti-refresh"></i>Resetar</button>
+    </div>
+    <div class="card-body">
+      <p style="font-size:12px;color:var(--ink3);margin-bottom:12px">Ajuste os sliders para simular variações de preço. Os valores reais <strong>não são alterados</strong>.</p>
+      ${metais.map(m=>{
+        const v=R(simVar[m.id]);
+        const novoP=m.preco_grama*(1+v/100);
+        const cls=v>0.01?'pos':v<-0.01?'neg':'zer';
+        return `<div class="sim-metal-row">
+          <div class="color-dot" style="background:${m.cor}"></div>
+          <div style="min-width:0">
+            <div style="font-size:12px;font-weight:500">${m.nome}</div>
+            <div style="font-size:10px;color:var(--ink4)">base: ${fmt(m.preco_grama)}/g</div>
+          </div>
+          <div>
+            <input type="range" class="sim-slider" min="-50" max="100" step="1" value="${v}" oninput="simVar[${m.id}]=parseFloat(this.value);renderSimulador()">
+            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--ink4)"><span>−50%</span><span>0</span><span>+100%</span></div>
+          </div>
+          <div class="sim-pct ${cls}">${v>=0?'+':''}${fmtN(v,0)}%</div>
+          <div class="sim-novo">${fmt(novoP)}/g</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <i class="ti ti-chart-bar" style="color:var(--pk);font-size:15px"></i>
+      <span class="card-title">Impacto no CPV por SKU</span>
+    </div>
+    <div class="card-body">
+      ${!temVar?`<p style="font-size:12px;color:var(--ink4);padding:.5rem 0">Mova os sliders acima para ver o impacto nos SKUs.</p>`:`
+        <div class="sim-chart-wrap"><canvas id="sim-chart"></canvas></div>
+        <table class="sim-tbl">
+          <thead><tr>
+            <th style="text-align:left">SKU</th>
+            <th>CPV atual</th><th>CPV simulado</th>
+            <th>Δ R$</th><th>Δ %</th>
+          </tr></thead>
+          <tbody>${dadosSku.map(d=>{
+            const up=d.delta>0.005,dn=d.delta<-0.005;
+            return `<tr>
+              <td style="font-family:var(--fn)">${d.nome}</td>
+              <td>${fmt(d.base)}</td>
+              <td style="font-weight:600;color:${up?'var(--err)':dn?'var(--ok)':'var(--ink)'}">${fmt(d.sim)}</td>
+              <td><span class="badge ${up?'badge-up':dn?'badge-dn':'badge-eq'}">${d.delta>=0?'+':''}${fmt(d.delta)}</span></td>
+              <td><span class="badge ${up?'badge-up':dn?'badge-dn':'badge-eq'}">${d.deltaPct>=0?'+':''}${fmtN(d.deltaPct,1)}%</span></td>
+            </tr>`;
+          }).join('')}</tbody>
+        </table>
+      `}
+    </div>
+  </div>`;
+  if(temVar)setTimeout(()=>drawSimChart(dadosSku),60);
+}
+function resetSim(){metais.forEach(m=>{simVar[m.id]=0;});renderSimulador();}
+
+/* ═══════════════════════════════════════════════════
+   ABA 4 — SKUs / CPV
+═══════════════════════════════════════════════════ */
+function calcSku(s){
+  const mls=skuMls[s.id]||[];
+  const ind=skuInd[s.id]||[];
+  const vol=Math.max(R(s.volume),1);
+  const mat=R(s.preco_bruto);
+  const proc=R(s.corte)+R(s.solda)+R(s.montagem);
+  let mlsTotal=0;
+  const mlsDet=mls.map(l=>{
+    const metal=metais.find(m=>m.id===l.metal_id)||metais[0]||{preco_grama:0,densidade:10};
+    const peso_g=R(l.microns)*1e-4*R(l.area)*R(metal.densidade);
+    const custo=peso_g*R(metal.preco_grama);
+    mlsTotal+=custo;
+    return{...l,metal,peso_g,custo};
+  });
+  const galv=mlsTotal+R(s.banho_rodio)+R(s.banho_paladio);
+  const acab=(s.aplic_rodio==='S'?R(s.custo_aplic_rodio):0)+(s.resina==='S'?R(s.custo_resina):0)+(s.colagem==='S'?R(s.custo_colagem):0);
+  let indT=0;
+  const indDet=ind.map(i=>{
+    const v=R(i.valor);
+    let u=i.tipo==='fixo_total'?v/vol:i.tipo==='por_unidade'?v:(mat+proc+galv+acab)*(v/100);
+    indT+=u;return{...i,unitario:u};
+  });
+  const total=mat+proc+galv+acab+indT;
+  return{mat,proc,galv,acab,ind:indT,total,mlsTotal,mlsDet,indDet,vol};
+}
+
+async function addSku(){
+  const {data,error}=await sbC.from('cpv_skus').insert({nome:'Novo SKU',volume:100}).select().single();
+  if(error){toast('Erro ao criar SKU','err');return;}
+  await sbC.from('cpv_sku_indiretos').insert({sku_id:data.id,descricao:'',valor:0,tipo:'fixo_total',ordem:0});
+  toast('SKU criado ✓');
+  await loadAll();
+  activeSkuId=data.id;
+  render();
+}
+
+async function saveSku(){
+  const s=skus.find(x=>x.id===activeSkuId);
+  if(!s)return;
+  const {error}=await sbC.from('cpv_skus').update({
+    nome:s.nome,volume:s.volume,preco_bruto:s.preco_bruto,fundicao:s.fundicao,
+    corte:s.corte,solda:s.solda,montagem:s.montagem,
+    banho_rodio:s.banho_rodio,banho_paladio:s.banho_paladio,
+    aplic_rodio:s.aplic_rodio,custo_aplic_rodio:s.custo_aplic_rodio,
+    resina:s.resina,custo_resina:s.custo_resina,
+    colagem:s.colagem,custo_colagem:s.custo_colagem,
+    rodio_peso_depois:s.rodio_peso_depois,rodio_tempo_s:s.rodio_tempo_s,
+    atualizado_em:new Date().toISOString()
+  }).eq('id',s.id);
+  if(error)toast('Erro ao salvar','err');
+  else toast('SKU salvo ✓');
+}
+
+async function delSku(id){
+  if(!confirm('Remover este SKU?'))return;
+  await sbC.from('cpv_skus').update({ativo:false}).eq('id',id);
+  toast('SKU removido');
+  await loadAll();
+  activeSkuId=skus[0]?.id||null;
+  render();
+}
+
+// MLS
+async function addMlsRow(skuId){
+  if(!metais.length)return;
+  const ordem=(skuMls[skuId]||[]).length;
+  const {error}=await sbC.from('cpv_sku_mls').insert({sku_id:skuId,metal_id:metais[0].id,microns:0,area:0,ordem});
+  if(error){toast('Erro','err');return;}
+  await loadAll();render();
+}
+async function delMlsRow(id){
+  await sbC.from('cpv_sku_mls').delete().eq('id',id);
+  await loadAll();render();
+}
+async function saveMlsField(id,field,val){
+  const upd={};upd[field]=field==='metal_id'?parseInt(val):parseFloat(val)||0;
+  await sbC.from('cpv_sku_mls').update(upd).eq('id',id);
+  await loadAll();render();
+}
+
+// INDIRETOS
+async function addIndRow(skuId){
+  const ordem=(skuInd[skuId]||[]).length;
+  await sbC.from('cpv_sku_indiretos').insert({sku_id:skuId,descricao:'',valor:0,tipo:'fixo_total',ordem});
+  await loadAll();render();
+}
+async function delIndRow(id){
+  await sbC.from('cpv_sku_indiretos').delete().eq('id',id);
+  await loadAll();render();
+}
+async function saveIndField(id,field,val){
+  const upd={};upd[field]=field==='valor'?parseFloat(val)||0:val;
+  await sbC.from('cpv_sku_indiretos').update(upd).eq('id',id);
+  await loadAll();render();
+}
+
+function updSku(field,val){
+  const s=skus.find(x=>x.id===activeSkuId);
+  if(!s)return;
+  const numFields=['volume','preco_bruto','corte','solda','montagem','banho_rodio','banho_paladio','custo_aplic_rodio','custo_resina','custo_colagem','rodio_peso_depois','rodio_tempo_s'];
+  s[field]=numFields.includes(field)?parseFloat(val)||0:val;
+  // re-render apenas o sumário
+  const c=calcSku(s);
+  renderSkuSummary(s,c);
+}
+
+function updRodio(val, campo){
+  const s=skus.find(x=>x.id===activeSkuId);
+  if(!s)return;
+  if(campo==='peso') s.rodio_peso_depois=parseFloat(val)||0;
+  if(campo==='tempo') s.rodio_tempo_s=parseFloat(val)||0;
+  renderRodioCalc(s);
+}
+
+function renderRodioCalc(s){
+  const elT=document.getElementById('rodio-teorico');
+  const elM=document.getElementById('rodio-mls');
+  const elB=document.getElementById('rodio-banhada');
+  const elF=document.getElementById('rodio-formula');
+  if(!elT)return;
+  const pd=R(s.rodio_peso_depois), ts=R(s.rodio_tempo_s);
+  const rodioMetal=metais.find(m=>/ródio|rodio/i.test(m.nome));
+  const precoRodio=rodioMetal?R(rodioMetal.preco_grama):0;
+  const gramasRodio=pd*1/1000*(ts/60);
+  const mls=pd>0?gramasRodio/pd*1000:0;
+  const custoBanhada=gramasRodio*precoRodio;
+  elT.textContent=fmtN(gramasRodio,4)+' g';
+  elM.textContent=fmtN(mls,2);
+  elB.textContent=fmt(custoBanhada);
+  elF.innerHTML='Fórmula: Teórico Ródio = Peso depois × (1/1000) × (Tempo ÷ 60) &nbsp;·&nbsp; Ródio a '+(precoRodio>0?fmt(precoRodio)+'/g':'<span style="color:var(--err)">preço não cadastrado na aba Metais</span>');
+}
+
+function renderSkuSummary(s,c){
+  const el=document.getElementById('sku-summary');
+  if(!el)return;
+  const parts=[{label:'Material bruto',v:c.mat},{label:'Processos fab.',v:c.proc},{label:'Galvano / mls',v:c.galv},{label:'Acabamentos',v:c.acab},{label:'Indiretos',v:c.ind}].filter(p=>p.v>0.001);
+  el.innerHTML=`
+    <div class="summary">
+      <div class="sum-title">📊 ${s.nome||'SKU'} &nbsp;<span style="font-size:10px;font-weight:400;opacity:.5">${c.vol} un/mês</span></div>
+      <div class="sum-grid">
+        <div class="sum-card"><div class="sum-l">Material</div><div class="sum-v">${fmt(c.mat)}</div></div>
+        <div class="sum-card"><div class="sum-l">Processos</div><div class="sum-v">${fmt(c.proc)}</div></div>
+        <div class="sum-card"><div class="sum-l">Galvano/mls</div><div class="sum-v">${fmt(c.galv)}</div></div>
+        <div class="sum-card"><div class="sum-l">Acabamentos</div><div class="sum-v">${fmt(c.acab)}</div></div>
+        <div class="sum-card"><div class="sum-l">Indiretos</div><div class="sum-v">${fmt(c.ind)}</div></div>
+        <div class="sum-card hi"><div class="sum-l">CPV / unidade</div><div class="sum-v total">${fmt(c.total)}</div></div>
+
+      </div>
+      <div style="margin-top:.8rem">
+        ${parts.map(p=>`<div class="bar-row">
+          <span class="bar-lbl">${p.label}</span>
+          <div class="bar-track"><div class="bar-fill" style="width:${c.total>0?(p.v/c.total*100).toFixed(1):0}%"></div></div>
+          <span class="bar-val">${fmt(p.v)} · ${pct(c.total>0?p.v/c.total*100:0)}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function snBlock(label,sf,cf,cur,cost,sid){
+  return `<div class="sn-wrap">
+    <label style="font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em">${label}</label>
+    <div class="sn-row">
+      <button class="sn-btn ${cur==='S'?'on-s':''}" onclick="updSku('${sf}','S');this.parentNode.querySelectorAll('.sn-btn').forEach(b=>b.classList.remove('on-s','on-n'));this.classList.add('on-s');this.nextElementSibling.classList.add('on-n');renderSkus()">S</button>
+      <button class="sn-btn ${cur==='N'?'on-n':''}" onclick="updSku('${sf}','N');this.parentNode.querySelectorAll('.sn-btn').forEach(b=>b.classList.remove('on-s','on-n'));this.classList.add('on-n');this.previousElementSibling.classList.remove('on-s');renderSkus()">N</button>
+      ${cur==='S'?`<div class="sn-cost"><label>R$/un</label><input type="number" min="0" step="any" value="${cost||''}" placeholder="0,00" oninput="updSku('${cf}',this.value)"></div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderSkus(){
+  const s=skus.find(x=>x.id===activeSkuId)||skus[0];
+  if(!s){
+    document.getElementById('tab-skus').innerHTML=`<div class="card"><div class="card-body" style="text-align:center;padding:3rem"><p style="color:var(--ink3);margin-bottom:1rem">Nenhum SKU cadastrado.</p><button class="btn btn-g" onclick="addSku()"><i class="ti ti-plus"></i>Criar primeiro SKU</button></div></div>`;
+    return;
+  }
+  activeSkuId=s.id;
+  const c=calcSku(s);
+
+  document.getElementById('tab-skus').innerHTML=`
+  <div class="sku-layout">
+    <div class="sku-sidebar">
+      <div class="sku-sidebar-inner">
+        <div class="sidebar-head">SKUs</div>
+        ${skus.map(sk=>`<button class="sk-tab${sk.id===s.id?' active':''}" onclick="activeSkuId=${sk.id};renderSkus()">
+          <i class="ti ti-diamond"></i><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sk.nome||'Sem nome'}</span>
+        </button>`).join('')}
+        <div style="padding:8px 10px;border-top:1px solid var(--line2)">
+          <button class="add-link" onclick="addSku()"><i class="ti ti-plus"></i>Novo SKU</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sku-editor">
+      <div class="card">
+        <div class="card-head">
+          <i class="ti ti-diamond" style="color:var(--pk);font-size:15px"></i>
+          <span class="card-title">${s.nome}</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-g" onclick="saveSku()"><i class="ti ti-device-floppy"></i>Salvar</button>
+            <button class="btn-icon" onclick="delSku(${s.id})" title="Remover SKU"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <!-- NOME + VOLUME -->
+          <div class="g2" style="margin-bottom:.9rem">
+            <div class="fi"><label>Código / nome</label><input value="${s.nome}" oninput="updSku('nome',this.value)" placeholder="CJ0214"></div>
+            <div class="fi"><label>Volume / mês (un)</label><input type="number" min="1" value="${s.volume}" oninput="updSku('volume',this.value)"><div class="vol-hint">Base do rateio de indiretos</div></div>
+          </div>
+
+          <!-- MATERIAL -->
+          <div class="fg">
+            <div class="fg-head"><i class="ti ti-package"></i>Material bruto</div>
+            <div class="g2">
+              <div class="fi"><label>Preço do bruto (R$/un)</label><input type="number" min="0" step="any" value="${s.preco_bruto||''}" oninput="updSku('preco_bruto',this.value)" placeholder="0,00"></div>
+              <div>
+                <label style="font-size:10px;font-weight:500;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em">Fundição</label>
+                <div class="sn-row" style="margin-top:3px">
+                  <button class="sn-btn ${s.fundicao==='S'?'on-s':''}" onclick="updSku('fundicao','S');renderSkus()">S</button>
+                  <button class="sn-btn ${s.fundicao!=='S'?'on-n':''}" onclick="updSku('fundicao','N');renderSkus()">N</button>
+                  <span style="font-size:10px;color:var(--ink4)">incluso no bruto</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROCESSOS -->
+          <div class="fg">
+            <div class="fg-head"><i class="ti ti-tool"></i>Processos de fabricação</div>
+            <div class="g3">
+              <div class="fi"><label>Corte (R$/un)</label><input type="number" min="0" step="any" value="${s.corte||''}" oninput="updSku('corte',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Solda (R$/un)</label><input type="number" min="0" step="any" value="${s.solda||''}" oninput="updSku('solda',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Montagem (R$/un)</label><input type="number" min="0" step="any" value="${s.montagem||''}" oninput="updSku('montagem',this.value)" placeholder="0,00"></div>
+            </div>
+          </div>
+
+          <!-- MILESIMAGEM -->
+          <div class="fg">
+            <div class="fg-head"><i class="ti ti-droplet"></i>Milesimagem de metal <span class="chip chip-g" style="margin-left:4px">µm</span></div>
+            <div class="mls-hdr"><span>Metal</span><span>Espessura µm</span><span>Área cm²</span><span>Peso dep. g</span><span>Custo</span><span></span></div>
+            ${c.mlsDet.map(l=>`<div class="mls-row">
+              <select onchange="saveMlsField(${l.id},'metal_id',this.value)">
+                ${metais.map(m=>`<option value="${m.id}"${m.id===l.metal_id?' selected':''}>${m.nome} R$${fmtN(m.preco_grama,2)}/g</option>`).join('')}
+              </select>
+              <input type="number" min="0" step="any" value="${l.microns}" placeholder="0.5" onchange="saveMlsField(${l.id},'microns',this.value)">
+              <input type="number" min="0" step="any" value="${l.area}" placeholder="4.5" onchange="saveMlsField(${l.id},'area',this.value)">
+              <div class="calc-box" style="font-size:10px">${fmtG(l.peso_g)} g</div>
+              <div class="calc-box" style="font-size:10px">${fmt(l.custo)}</div>
+              <button class="btn-icon" onclick="delMlsRow(${l.id})"><i class="ti ti-x"></i></button>
+            </div>`).join('')}
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <button class="add-link" onclick="addMlsRow(${s.id})"><i class="ti ti-plus"></i>Camada</button>
+              <span style="font-size:11px;color:var(--ink3)">Total: <strong style="font-family:var(--fm);color:var(--g)">${fmt(c.mlsTotal)}</strong></span>
+            </div>
+            <div class="g2" style="margin-top:8px">
+              <div class="fi"><label>Banho de ródio</label><input type="number" min="0" step="any" value="${s.banho_rodio||''}" oninput="updSku('banho_rodio',this.value)" placeholder="0,00"></div>
+              <div class="fi"><label>Banho de paládio</label><input type="number" min="0" step="any" value="${s.banho_paladio||''}" oninput="updSku('banho_paladio',this.value)" placeholder="0,00"></div>
+            </div>
+
+            <!-- CALCULADORA BANHO DE RÓDIO -->
+            <div style="margin-top:14px;background:linear-gradient(135deg,#FAFBFA,#F2F6F4);border:1px solid var(--line);border-radius:10px;padding:14px">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+                <i class="ti ti-calculator" style="color:var(--pk);font-size:14px"></i>
+                <span style="font-size:11px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.05em">Calculadora de banho de ródio</span>
+                <span class="chip chip-pk" style="margin-left:auto">R$/banhada</span>
+              </div>
+              <div class="g2" style="margin-bottom:8px">
+                <div class="fi"><label>Peso depois (g)</label><input type="number" min="0" step="any" value="${s.rodio_peso_depois||''}" oninput="updRodio(this.value,'peso')" placeholder="ex: 263,75"></div>
+                <div class="fi"><label>Tempo de aplicação (s)</label><input type="number" min="0" step="any" value="${s.rodio_tempo_s||''}" oninput="updRodio(this.value,'tempo')" placeholder="ex: 40"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px">
+                <div style="background:var(--w);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:center">
+                  <div style="font-size:9px;color:var(--ink4);text-transform:uppercase;letter-spacing:.04em">Teórico Ródio</div>
+                  <div id="rodio-teorico" style="font-size:14px;font-weight:700;font-family:var(--fm);color:var(--ink);margin-top:2px">0,0000 g</div>
+                </div>
+                <div style="background:var(--w);border:1px solid var(--line);border-radius:8px;padding:8px 10px;text-align:center">
+                  <div style="font-size:9px;color:var(--ink4);text-transform:uppercase;letter-spacing:.04em">MLS</div>
+                  <div id="rodio-mls" style="font-size:14px;font-weight:700;font-family:var(--fm);color:var(--ink);margin-top:2px">0,00</div>
+                </div>
+                <div style="background:linear-gradient(135deg,#FDF2F8,#FCE7F3);border:1px solid var(--pk);border-radius:8px;padding:8px 10px;text-align:center">
+                  <div style="font-size:9px;color:var(--pk);text-transform:uppercase;letter-spacing:.04em">R$ Banhada</div>
+                  <div id="rodio-banhada" style="font-size:14px;font-weight:700;font-family:var(--fm);color:var(--pk);margin-top:2px">R$ 0,00</div>
+                </div>
+              </div>
+              <div id="rodio-formula" style="font-size:9px;color:var(--ink4);margin-top:8px;line-height:1.4"></div>
+            </div>
+          </div>
+
+          <!-- ACABAMENTOS -->
+          <div class="fg">
+            <div class="fg-head"><i class="ti ti-sparkles"></i>Acabamentos especiais</div>
+            <div class="g3">
+              ${snBlock('Aplique de ródio','aplic_rodio','custo_aplic_rodio',s.aplic_rodio,s.custo_aplic_rodio,s.id)}
+              ${snBlock('Resina','resina','custo_resina',s.resina,s.custo_resina,s.id)}
+              ${snBlock('Colagem','colagem','custo_colagem',s.colagem,s.custo_colagem,s.id)}
+            </div>
+          </div>
+
+          <!-- INDIRETOS -->
+          <div class="fg">
+            <div class="fg-head"><i class="ti ti-building-factory"></i>Custos indiretos <span class="chip chip-gd" style="margin-left:4px">rateados — ${c.vol} un/mês</span></div>
+            <table class="ind-tbl">
+              <thead><tr><th>Descrição</th><th style="width:110px">Valor (R$)</th><th style="width:150px">Tipo de rateio</th><th style="width:85px">R$/unidade</th><th style="width:28px"></th></tr></thead>
+              <tbody>${c.indDet.map(i=>`<tr>
+                <td><input value="${i.descricao||''}" placeholder="Ex: Energia elétrica" onchange="saveIndField(${i.id},'descricao',this.value)"></td>
+                <td><input type="number" min="0" step="any" value="${i.valor||''}" placeholder="0,00" onchange="saveIndField(${i.id},'valor',this.value)"></td>
+                <td><select onchange="saveIndField(${i.id},'tipo',this.value)">
+                  <option value="fixo_total"${i.tipo==='fixo_total'?' selected':''}>Fixo mês ÷ volume</option>
+                  <option value="por_unidade"${i.tipo==='por_unidade'?' selected':''}>Por unidade</option>
+                  <option value="pct_custo"${i.tipo==='pct_custo'?' selected':''}>% sobre custo variável</option>
+                </select></td>
+                <td style="text-align:right;font-family:var(--fm);color:var(--g);font-size:11px">${fmt(i.unitario)}</td>
+                <td><button class="btn-icon" onclick="delIndRow(${i.id})"><i class="ti ti-x"></i></button></td>
+              </tr>`).join('')}</tbody>
+            </table>
+            <button class="add-link" onclick="addIndRow(${s.id})"><i class="ti ti-plus"></i>Adicionar custo indireto</button>
+          </div>
+
+
+          <!-- SUMMARY -->
+          <div id="sku-summary"></div>
+
+          <div class="actions">
+            <button class="btn btn-g" onclick="saveSku()"><i class="ti ti-device-floppy"></i>Salvar SKU</button>
+            <button class="btn btn-ghost" onclick="exportCSV()"><i class="ti ti-download"></i>Exportar CSV</button>
+            <button class="btn btn-pk" onclick="sendToAI(${s.id})"><i class="ti ti-robot"></i>Analisar com IA</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  renderSkuSummary(s,c);
+  renderRodioCalc(s);
+}
+
+/* ═══════════════════════════════════════════════════
+   ABA 5 — COMPARATIVO
+═══════════════════════════════════════════════════ */
+function renderResumo(){
+  const dados=skus.map(s=>({s,c:calcSku(s)}));
+  const maxT=Math.max(...dados.map(d=>d.c.total),0.01);
+  document.getElementById('tab-resumo').innerHTML=`
+  <div class="card">
+    <div class="card-head">
+      <i class="ti ti-chart-bar" style="color:var(--gd);font-size:15px"></i>
+      <span class="card-title">Comparativo de CPV — todos os SKUs</span>
+      <button class="btn btn-ghost" onclick="exportCSV()" style="font-size:11px;padding:5px 10px"><i class="ti ti-download"></i>Exportar CSV</button>
+    </div>
+    <div class="card-body">
+      <div style="overflow-x:auto">
+      <table class="comp-tbl">
+        <thead><tr>
+          <th style="text-align:left">SKU</th>
+          <th>Vol./mês</th><th>Material</th><th>Processos</th>
+          <th>Galvano/mls</th><th>Acabamentos</th><th>Indiretos</th>
+          <th style="color:var(--g)">CPV/un</th>
+        </tr></thead>
+        <tbody>${dados.map(({s,c})=>`<tr onclick="activeSkuId=${s.id};goTab('skus',document.querySelectorAll('.tnav')[3])">
+          <td>${s.nome}</td>
+          <td>${c.vol}</td>
+          <td>${fmt(c.mat)}</td>
+          <td>${fmt(c.proc)}</td>
+          <td>${fmt(c.galv)}</td>
+          <td>${fmt(c.acab)}</td>
+          <td>${fmt(c.ind)}</td>
+          <td style="font-weight:600;color:var(--g)">${fmt(c.total)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+      </div>
+      <div style="margin-top:1.2rem">
+        <div style="font-size:10px;color:var(--ink4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">CPV relativo por SKU</div>
+        ${dados.map(({s,c})=>`<div class="bar-row">
+          <span style="width:130px;font-size:12px;color:var(--ink3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0">${s.nome}</span>
+          <div style="flex:1;height:6px;background:var(--line2);border-radius:3px;overflow:hidden"><div style="height:100%;border-radius:3px;background:linear-gradient(90deg,var(--g),var(--pk));width:${(c.total/maxT*100).toFixed(1)}%"></div></div>
+          <span style="width:90px;text-align:right;font-size:11px;font-family:var(--fm);color:var(--ink3);flex-shrink:0">${fmt(c.total)}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ═══════════════════ EXPORT / AI ═══════════════════ */
+function exportCSV(){
+  const h='SKU,Volume/mês,Material,Processos,Galvano/Mls,Acabamentos,Indiretos,CPV Total';
+  const rows=skus.map(s=>{const c=calcSku(s);return`${s.nome},${c.vol},${c.mat.toFixed(2)},${c.proc.toFixed(2)},${c.galv.toFixed(2)},${c.acab.toFixed(2)},${c.ind.toFixed(2)},${c.total.toFixed(2)}`;});
+  const blob=new Blob([[h,...rows].join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cpv_pink_heart.csv';a.click();
+}
+
+function sendToAI(id){
+  const s=skus.find(x=>x.id===id);if(!s)return;
+  const c=calcSku(s);
+  const msg=`Analise o CPV do SKU "${s.nome}" (Pink Heart/Veri): material bruto R$${c.mat.toFixed(2)}, processos R$${c.proc.toFixed(2)}, galvanização/milesimagem R$${c.galv.toFixed(2)}, acabamentos R$${c.acab.toFixed(2)}, custos indiretos rateados R$${c.ind.toFixed(2)} (volume ${c.vol} un/mês), CPV total R$${c.total.toFixed(2)}. Dê insights sobre a composição de custos e oportunidades de redução.`;
+  if(typeof sendPrompt==='function')sendPrompt(msg);
+}
+
+window.cpvStart=loadAll;
+</script>
+<script>
+// ════════════════════════════════════════
+//  SUPABASE
+// ════════════════════════════════════════
+const _MU = 'https://dtdcokrmrwrjwboovfvf.supabase.co';
+const _MK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0ZGNva3Jtcndyandib292ZnZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NTU3MzcsImV4cCI6MjA5NDAzMTczN30.j0NCcBooAjXCk4IJ-5egWhk5jU7oDeRFX3L7s-dhVOg';
+const sbM = supabase.createClient(_MU,_MK,{auth:{storageKey:'mn-k',autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});
+
+// ════════════════════════════════════════
+//  AUTENTICAÇÃO & SESSÃO
+// ════════════════════════════════════════
+let sessao = null; // { id, nome, username, perfil }
+
+// Hash SHA-256 simples usando SubtleCrypto
+async function hashSenha(senha) {
+  const enc = new TextEncoder();
+  const buf = await crypto.subtle.digest('SHA-256', enc.encode(senha));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function fazerLogin() {
+  const username = document.getElementById('login-user').value.trim().toLowerCase();
+  const senha    = document.getElementById('login-pass').value;
+  const btn      = document.getElementById('login-btn');
+  const err      = document.getElementById('login-err');
+  if (!username || !senha) { err.textContent = 'Preencha usuário e senha.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Verificando…';
+  err.textContent = '';
+
+  try {
+    const hash = await hashSenha(senha);
+    const {data, error} = await sbM.from('mn_usuarios')
+      .select('id,nome,username,perfil,ativo')
+      .eq('username', username)
+      .eq('senha_hash', hash)
+      .eq('ativo', true)
+      .single();
+
+    if (error || !data) {
+      err.textContent = 'Usuário ou senha incorretos.';
+      btn.disabled = false; btn.textContent = 'Entrar'; return;
+    }
+
+    sessao = { id: data.id, nome: data.nome, username: data.username, perfil: data.perfil };
+    sessionStorage.setItem('mn_sessao', JSON.stringify(sessao));
+
+    // Atualiza último acesso
+    await sbM.from('mn_usuarios').update({ultimo_acesso: new Date().toISOString()}).eq('id', data.id);
+
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-shell').style.display = 'flex';
+    atualizarUI();
+    await init();
+  } catch(e) {
+    err.textContent = 'Erro de conexão.';
+  }
+  btn.disabled = false; btn.textContent = 'Entrar';
+}
+
+function fazerLogout() {
+  if (!confirm('Deseja sair do sistema?')) return;
+  sessao = null;
+  sessionStorage.removeItem('mn_sessao');
+  document.getElementById('app-shell').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-err').textContent = '';
+}
+
+function isMaster() { return sessao?.perfil === 'master'; }
+
+function atualizarUI() {
+  if (!sessao) return;
+  // Avatar sidebar
+  const ini = sessao.nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('sb-user-avatar').textContent = ini;
+  document.getElementById('sb-user-nome').textContent = sessao.nome;
+  document.getElementById('sb-user-perfil').textContent = sessao.perfil;
+
+  // Aplica restrições de perfil na UI
+  const banner = document.getElementById('banner-operador');
+  if (banner) banner.style.display = isMaster() ? 'none' : 'block';
+  if (!isMaster()) {
+    // Oculta botões de ação da topbar — operador não lança entrada/saída nem diluição
+    document.querySelectorAll('[data-master-only]').forEach(el => el.style.display = 'none');
+  } else {
+    document.querySelectorAll('[data-master-only]').forEach(el => el.style.display = '');
+  }
+}
+
+// Navegar com restrição de perfil
+function navRestrito(page, perfilMinimo) {
+  const hierarquia = ['operador','master'];
+  const nivelUser  = hierarquia.indexOf(sessao?.perfil || 'operador');
+  const nivelMin   = hierarquia.indexOf(perfilMinimo);
+  if (nivelUser < nivelMin) {
+    toast('Acesso restrito — perfil ' + perfilMinimo + ' necessário', 'err'); return;
+  }
+  nav(page);
+}
+
+// Verifica sessão salva ao carregar
+function verificarSessaoSalva() {
+  const s = sessionStorage.getItem('mn_sessao');
+  if (s) {
+    try {
+      sessao = JSON.parse(s);
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app-shell').style.display = 'flex';
+      atualizarUI();
+      init();
+      return true;
+    } catch(e) { sessionStorage.removeItem('mn_sessao'); }
+  }
+  return false;
+}
+
+// ════════════════════════════════════════
+//  CRUD USUÁRIOS
+// ════════════════════════════════════════
+async function renderUsuarios() {
+  const {data, error} = await sbM.from('mn_usuarios').select('*').order('nome');
+  const el = document.getElementById('usuarios-list');
+  if (error || !data || !data.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-ico">👤</div><div class="empty-txt">Nenhum usuário cadastrado.</div></div>`;
+    return;
+  }
+  const perfilColors = {master:'var(--au)', operador:'var(--muted2)'};
+  el.innerHTML = data.map(u => {
+    const ini = u.nome.split(' ').map(p=>p[0]).join('').slice(0,2).toUpperCase();
+    const cor = perfilColors[u.perfil] || 'var(--muted2)';
+    const opacidade = u.ativo ? '' : 'opacity:.5;';
+    const ultimo = u.ultimo_acesso ? new Date(u.ultimo_acesso).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : 'Nunca';
+    const ehVoce = u.id === sessao?.id;
+    return `<div class="user-card" style="${opacidade}">
+      <div class="user-card-avatar" style="color:${cor};border:1.5px solid ${cor}">${ini}</div>
+      <div class="user-card-info">
+        <div class="user-card-name">${u.nome}</div>
+        <div class="user-card-user">@${u.username} · Último acesso: ${ultimo}</div>
+        <div style="margin-top:6px;display:flex;align-items:center;gap:6px">
+          <span class="badge-${u.perfil}">${u.perfil}</span>
+          ${!u.ativo ? '<span style="font-size:9px;color:var(--red)">inativo</span>' : ''}
+          ${ehVoce ? '<span style="font-size:9px;color:var(--muted)">• você</span>' : ''}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin-left:auto;flex-shrink:0">
+        <button class="btn btn-ghost btn-sm" onclick="editarUsuario('${u.id}')" title="Editar">✏ Editar</button>
+        <button class="btn btn-ghost btn-sm" onclick="alterarSenhaUsuario('${u.id}','${u.nome.replace(/'/g,"\\'")}')" title="Alterar senha" style="color:var(--blue);border-color:var(--blue)">🔑 Senha</button>
+        ${!ehVoce ? `
+        <button class="btn btn-ghost btn-sm" onclick="toggleUsuario('${u.id}',${u.ativo})" title="${u.ativo?'Desativar':'Reativar'}" style="color:var(--warn)">${u.ativo ? '⊘ Desativar' : '✓ Reativar'}</button>
+        <button class="btn btn-danger btn-sm" onclick="excluirUsuario('${u.id}','${u.nome.replace(/'/g,"\\'")}')" title="Excluir permanentemente">✕ Excluir</button>
+        ` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function salvarUsuario() {
+  if (!isMaster()) { toast('Acesso restrito — apenas Master', 'err'); return; }
+  const id     = document.getElementById('u-id').value;
+  const nome   = document.getElementById('u-nome').value.trim();
+  const user   = document.getElementById('u-username').value.trim().toLowerCase();
+  const senha  = document.getElementById('u-senha').value;
+  const perfil = document.getElementById('u-perfil').value;
+  if (!nome || !user) { toast('Nome e usuário são obrigatórios', 'err'); return; }
+  if (!id && !senha) { toast('Informe a senha para novo usuário', 'err'); return; }
+  if (senha && senha.length < 6) { toast('Senha mínima: 6 caracteres', 'err'); return; }
+
+  const payload = { nome, username: user, perfil };
+  if (senha) payload.senha_hash = await hashSenha(senha);
+
+  let error;
+  if (id) {
+    ({error} = await sbM.from('mn_usuarios').update(payload).eq('id', id));
+  } else {
+    ({error} = await sbM.from('mn_usuarios').insert(payload));
+  }
+  if (error) { toast('Erro: ' + (error.message.includes('unique') ? 'Usuário já existe.' : error.message), 'err'); return; }
+
+  closeModal('ov-usuario');
+  toast(id ? 'Usuário atualizado!' : 'Usuário criado!', 'ok');
+  renderUsuarios();
+}
+
+function editarUsuario(id) {
+  const el = document.getElementById('usuarios-list');
+  // Busca pelo card — re-fetch do banco
+  sbM.from('mn_usuarios').select('*').eq('id', id).single().then(({data}) => {
+    if (!data) return;
+    document.getElementById('u-id').value = data.id;
+    document.getElementById('u-nome').value = data.nome;
+    document.getElementById('u-username').value = data.username;
+    document.getElementById('u-perfil').value = data.perfil;
+    document.getElementById('u-senha').value = '';
+    document.getElementById('usuario-modal-title').innerHTML = '✏ <span>Editar Usuário</span>';
+    openModal('usuario');
+  });
+}
+
+async function toggleUsuario(id, ativo) {
+  const acao = ativo ? 'desativar' : 'reativar';
+  if (!confirm(`Deseja ${acao} este usuário?`)) return;
+  const {error} = await sbM.from('mn_usuarios').update({ativo: !ativo}).eq('id', id);
+  if (error) { toast('Erro ao atualizar', 'err'); return; }
+  toast(`Usuário ${ativo ? 'desativado' : 'reativado'}`, 'ok');
+  renderUsuarios();
+}
+
+async function excluirUsuario(id, nome) {
+  if (!isMaster()) { toast('Acesso restrito — apenas Master', 'err'); return; }
+  if (!confirm(`Excluir permanentemente o usuário "${nome}"?\n\nEsta ação não pode ser desfeita.`)) return;
+  const {error} = await sbM.from('mn_usuarios').delete().eq('id', id);
+  if (error) { toast('Erro ao excluir: ' + error.message, 'err'); return; }
+  toast(`Usuário "${nome}" excluído.`, 'ok');
+  renderUsuarios();
+}
+
+function alterarSenhaUsuario(id, nome) {
+  if (!isMaster()) { toast('Acesso restrito — apenas Master', 'err'); return; }
+  const novaSenha = prompt(`Nova senha para "${nome}":\n(mínimo 6 caracteres)`);
+  if (novaSenha === null) return; // cancelou
+  if (!novaSenha || novaSenha.length < 6) { toast('Senha mínima: 6 caracteres', 'err'); return; }
+  hashSenha(novaSenha).then(async hash => {
+    const {error} = await sbM.from('mn_usuarios').update({senha_hash: hash}).eq('id', id);
+    if (error) { toast('Erro ao alterar senha', 'err'); return; }
+    toast(`Senha de "${nome}" alterada com sucesso!`, 'ok');
+  });
+}
+
+// ════════════════════════════════════════
+//  ESTADO
+// ════════════════════════════════════════
+let tanques = [], estoque = [], alertas = [];
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+async function init() {
+  try {
+    await Promise.all([loadTanques(), loadEstoque(), loadAlertas()]);
+    setConn(true);
+    renderSidebarMetals();
+    renderDashboard();
+    setInterval(checkAlertas, 60000);
+  } catch(e) {
+    setConn(false);
+    toast('Erro de conexão: ' + e.message, 'err');
+  }
+}
+
+// ════════════════════════════════════════
+//  LOADERS
+// ════════════════════════════════════════
+async function loadTanques() {
+  const {data, error} = await sbM.from('mn_tanques').select('*').eq('ativo', true).order('metal');
+  if (error) throw error;
+  tanques = data || [];
+}
+async function loadEstoque() {
+  const {data, error} = await sbM.from('mn_estoque').select('*').order('metal').order('estado');
+  if (error) throw error;
+  estoque = data || [];
+}
+async function loadAlertas() {
+  const {data, error} = await sbM.from('mn_alertas').select('*, mn_tanques(nome,metal)').eq('resolvido', false).order('criado_em', {ascending: false});
+  if (error) throw error;
+  alertas = data || [];
+  updateAlertaBadges();
+}
+
+// ════════════════════════════════════════
+//  VERIFICAÇÃO AUTOMÁTICA DE ALERTAS
+// ════════════════════════════════════════
+async function checkAlertas() {
+  // Para cada tanque, verifica se está no limite de reforço
+  for (const t of tanques) {
+    if (!t.intervalo_reforco_h) continue;
+    // Último reforço
+    const {data} = await sbM.from('mn_reforcos')
+      .select('criado_em')
+      .eq('tanque_id', t.id)
+      .order('criado_em', {ascending: false})
+      .limit(1);
+    if (!data || !data.length) continue;
+    const ultimo = new Date(data[0].criado_em);
+    const agora = new Date();
+    const horas = (agora - ultimo) / 3600000;
+    if (horas >= t.intervalo_reforco_h) {
+      // Verifica se já existe alerta aberto
+      const {data: ex} = await sbM.from('mn_alertas')
+        .select('id').eq('tanque_id', t.id)
+        .eq('tipo_alerta', 'sem_reforco').eq('resolvido', false).limit(1);
+      if (!ex || !ex.length) {
+        await sbM.from('mn_alertas').insert({
+          tanque_id: t.id,
+          tipo_alerta: 'sem_reforco',
+          nivel: horas > t.intervalo_reforco_h * 1.5 ? 'critico' : 'aviso',
+          mensagem: `Tanque "${t.nome}" sem reforço há ${horas.toFixed(1)}h (máximo: ${t.intervalo_reforco_h}h)`
+        });
+      }
+    }
+  }
+  await loadAlertas();
+}
+
+function updateAlertaBadges() {
+  const count = alertas.length;
+  ['sb-alert-badge','sb-alertas-count','bn-alert-badge'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = count > 0 ? 'inline' : 'none';
+    el.textContent = count;
+  });
+}
+
+// ════════════════════════════════════════
+//  RENDER — SIDEBAR METAIS
+// ════════════════════════════════════════
+function renderSidebarMetals() {
+  const colors = {Au:'var(--au)',Pd:'var(--pd)',Rh:'var(--rh)',Ag:'var(--ag)'};
+  const el = document.getElementById('sb-metals');
+  let html = '';
+
+  // Au Sólido
+  const auSol = estoque.find(x => x.metal === 'Au' && x.estado === 'solido');
+  const auLiq = estoque.find(x => x.metal === 'Au' && x.estado === 'liquido');
+  html += `<div class="sb-metal" onclick="nav('diluicao')" title="Au Sólido">
+    <div class="sb-metal-dot" style="background:var(--au);opacity:.5"></div>
+    <span>Ouro Sólido</span>
+    <span class="sb-metal-val">${auSol ? parseFloat(auSol.saldo_g).toFixed(2) : '0.00'}g</span>
+  </div>`;
+  html += `<div class="sb-metal" onclick="nav('diluicao')" title="Au Líquido">
+    <div class="sb-metal-dot" style="background:var(--au)"></div>
+    <span>Ouro Líquido</span>
+    <span class="sb-metal-val">${auLiq ? parseFloat(auLiq.saldo_g).toFixed(2) : '0.00'}g</span>
+  </div>`;
+
+  // Demais metais
+  ['Pd','Rh','Ag'].forEach(m => {
+    const names = {Pd:'Paládio',Rh:'Ródio',Ag:'Prata'};
+    const e = estoque.find(x => x.metal === m);
+    const saldo = e ? parseFloat(e.saldo_g).toFixed(2) : '0.00';
+    html += `<div class="sb-metal" onclick="nav('movimentos')">
+      <div class="sb-metal-dot" style="background:${colors[m]}"></div>
+      <span>${names[m]}</span>
+      <span class="sb-metal-val">${saldo}g</span>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ════════════════════════════════════════
+//  RENDER — DASHBOARD
+// ════════════════════════════════════════
+async function renderDashboard() {
+  renderEstoqueCards();
+  renderDashTanques();
+  await loadMovimentos(true); // apenas 8 últimos p/ dashboard
+  renderDashAlertas();
+}
+
+function renderEstoqueCards() {
+  const el = document.getElementById('dash-estoque-cards');
+  let html = '';
+
+  // Au Sólido
+  const auSol = estoque.find(x => x.metal === 'Au' && x.estado === 'solido');
+  const auSolSaldo = auSol ? parseFloat(auSol.saldo_g) : 0;
+  const auSolPreco = auSol ? parseFloat(auSol.preco_g) : 0;
+  html += `<div class="card card-Au" style="border-color:#5A3800!important;opacity:.85">
+    <div class="card-title">⬡ Ouro Sólido (Au)</div>
+    <div class="card-val" style="color:#A07020">${auSolSaldo.toFixed(3)}</div>
+    <div class="card-unit">gramas · estado sólido</div>
+    <div class="card-sub" style="color:var(--warn);font-size:9px;margin-top:4px">▲ Compra / Recuperação → Diluição</div>
+    <div class="card-sub">Preço/g: R$ ${auSolPreco.toFixed(2)} · ${(auSolSaldo * auSolPreco).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</div>
+  </div>`;
+
+  // Au Líquido
+  const auLiq = estoque.find(x => x.metal === 'Au' && x.estado === 'liquido');
+  const auLiqSaldo = auLiq ? parseFloat(auLiq.saldo_g) : 0;
+  const auLiqPreco = auLiq ? parseFloat(auLiq.preco_g) : 0;
+  html += `<div class="card card-Au">
+    <div class="card-title">◈ Ouro Líquido (Au)</div>
+    <div class="card-val">${auLiqSaldo.toFixed(3)}</div>
+    <div class="card-unit">gramas · estado líquido</div>
+    <div class="card-sub" style="color:var(--green);font-size:9px;margin-top:4px">▼ Usado nos reforços de tanques</div>
+    <div class="card-sub">Preço/g: R$ ${auLiqPreco.toFixed(2)} · ${(auLiqSaldo * auLiqPreco).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</div>
+  </div>`;
+
+  // Demais metais
+  const outros = [{m:'Pd',n:'Paládio',i:'◈'},{m:'Rh',n:'Ródio',i:'◇'},{m:'Ag',n:'Prata',i:'○'}];
+  outros.forEach(({m,n,i}) => {
+    const e = estoque.find(x => x.metal === m);
+    const saldo = e ? parseFloat(e.saldo_g) : 0;
+    const preco = e ? parseFloat(e.preco_g) : 0;
+    html += `<div class="card card-${m}">
+      <div class="card-title">${i} ${n} (${m})</div>
+      <div class="card-val">${saldo.toFixed(3)}</div>
+      <div class="card-unit">gramas em estoque</div>
+      <div class="card-sub">Preço/g: R$ ${preco.toFixed(2)} · ${(saldo*preco).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}</div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function renderDashTanques() {
+  const el = document.getElementById('dash-tanques');
+  if (!tanques.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-ico">⊟</div><div class="empty-txt">Nenhum tanque cadastrado.<br><a href="#" onclick="nav('config-tanques')" style="color:var(--au)">Cadastrar tanques →</a></div></div>`;
+    return;
+  }
+  el.innerHTML = tanques.map(t => renderTanqueCard(t)).join('');
+}
+
+function renderTanqueCard(t) {
+  const metalColors = {Au:'var(--au)',Pd:'var(--pd)',Rh:'var(--rh)',Ag:'var(--ag)'};
+  const c = metalColors[t.metal] || 'var(--muted2)';
+  const alertaTanque = alertas.filter(a => a.tanque_id === t.id);
+  const temAlerta = alertaTanque.length > 0;
+  const alertClass = temAlerta ? (alertaTanque.some(a=>a.nivel==='critico') ? 'border-color:#C03030!important;' : 'border-color:#A06020!important;') : '';
+
+  // Barra de concentração (simulada — seria atualizada via análise)
+  const ideal = t.conc_ideal_g_l || 0;
+  const min_ = t.conc_min_g_l || 0;
+  const max_ = t.conc_max_g_l || (ideal * 1.4);
+  const saldo = t.saldo_atual_g || 0;
+  const vol = t.volume_litros || 1;
+  const concAtual = vol > 0 ? saldo / vol : 0;
+  const pct = max_ > 0 ? Math.min(100, (concAtual / max_) * 100) : 0;
+  const barColor = concAtual < min_ ? 'var(--red)' : concAtual > max_ ? 'var(--warn)' : 'var(--green)';
+
+  return `<div class="tanque-card" style="${alertClass}">
+    <div class="tanque-header">
+      <div>
+        <div class="tanque-name" style="color:${c}">${t.nome}</div>
+        <div class="tanque-metal-badge" style="margin-top:6px"><span class="badge-metal badge-${t.metal}">${t.metal}</span></div>
+      </div>
+      ${temAlerta ? `<span class="tb-badge badge-${alertaTanque.some(a=>a.nivel==='critico')?'crit':'warn'}">⚠ ${alertaTanque.length} alerta${alertaTanque.length>1?'s':''}</span>` : `<span class="tb-badge badge-ok">✓ Normal</span>`}
+    </div>
+    <div class="tanque-stats">
+      <div class="tanque-stat">
+        <div class="tanque-stat-label">Saldo</div>
+        <div class="tanque-stat-val" style="color:${c}">${saldo.toFixed(3)}</div>
+        <div class="tanque-stat-unit">gramas</div>
+      </div>
+      <div class="tanque-stat">
+        <div class="tanque-stat-label">Conc. Calculada</div>
+        <div class="tanque-stat-val" style="color:${barColor}">${concAtual.toFixed(2)}</div>
+        <div class="tanque-stat-unit">g/L ${t.volume_litros ? `(${t.volume_litros}L)` : ''}</div>
+      </div>
+    </div>
+    ${max_ > 0 ? `<div class="conc-bar-wrap">
+      <div class="conc-bar-labels">
+        <span>0</span><span>Mín ${min_}</span><span>Ideal ${ideal}</span><span>Máx ${max_} g/L</span>
+      </div>
+      <div class="conc-bar-track">
+        <div class="conc-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+      </div>
+    </div>` : ''}
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button class="btn btn-ghost btn-sm" style="flex:1" onclick="openModal('analise');document.getElementById('a-tanque').value='${t.id}'">◈ Análise</button>
+    </div>
+  </div>`;
+}
+
+function renderDashAlertas() {
+  const el = document.getElementById('dash-alertas');
+  const criticos = alertas.filter(a => a.nivel === 'critico').slice(0,3);
+  if (!criticos.length) { el.innerHTML = ''; return; }
+  el.innerHTML = criticos.map(a => alertBanner(a)).join('');
+}
+
+function alertBanner(a) {
+  const cls = a.nivel === 'critico' ? 'alert-critico' : a.nivel === 'aviso' ? 'alert-aviso' : 'alert-info';
+  const ico = a.nivel === 'critico' ? '✕' : a.nivel === 'aviso' ? '⚠' : 'ℹ';
+  const time = new Date(a.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  const tanqueNome = a.mn_tanques ? a.mn_tanques.nome : '—';
+  return `<div class="alert-banner ${cls}">
+    <span>${ico}</span>
+    <div class="alert-text"><strong>${tanqueNome}</strong> — ${a.mensagem}</div>
+    <span class="alert-time">${time}</span>
+    <button class="alert-resolve" onclick="resolverAlerta('${a.id}')">Resolver</button>
+  </div>`;
+}
+
+// ════════════════════════════════════════
+//  MOVIMENTAÇÕES
+// ════════════════════════════════════════
+async function loadMovimentos(dash = false) {
+  let q = sbM.from('mn_movimentacoes')
+    .select('*, mn_tanques(nome)')
+    .order('criado_em', {ascending: false});
+
+  if (!dash) {
+    const m = document.getElementById('filt-metal')?.value;
+    const ti = document.getElementById('filt-tipo')?.value;
+    const de = document.getElementById('filt-de')?.value;
+    const ate = document.getElementById('filt-ate')?.value;
+    if (m) q = q.eq('metal', m);
+    if (ti) q = q.eq('tipo', ti);
+    if (de) q = q.gte('criado_em', de);
+    if (ate) q = q.lte('criado_em', ate + 'T23:59:59');
+    q = q.limit(200);
+  } else {
+    q = q.limit(8);
+  }
+
+  const {data, error} = await q;
+  if (error) { toast('Erro ao carregar movimentações', 'err'); return; }
+
+  const tbody = document.getElementById(dash ? 'dash-mov-tbody' : 'mov-tbody');
+  if (!data || !data.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Nenhuma movimentação registrada</td></tr>`;
+    return;
+  }
+
+  const tipoLabel = {entrada:'↓ Entrada',saida:'↑ Saída',reforco:'⊕ Reforço',diluicao:'⇌ Diluição',recuperacao:'↓ Recuperação',ajuste:'≈ Ajuste'};
+  const tipoColor = {entrada:'var(--green)',saida:'var(--red)',reforco:'var(--au)',diluicao:'var(--pd)',recuperacao:'var(--green)',ajuste:'var(--muted)'};
+
+  // Mostra coluna ações só para master
+  const thAcoes = document.getElementById('mov-th-acoes');
+  if (thAcoes) thAcoes.style.display = isMaster() ? '' : 'none';
+
+  tbody.innerHTML = data.map(m => {
+    const dt = new Date(m.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const sinal = ['entrada','recuperacao','reforco'].includes(m.tipo) ? '+' : '-';
+    const colorQtd = sinal === '+' ? 'var(--green)' : 'var(--red)';
+    const valor = m.valor_total ? `R$ ${parseFloat(m.valor_total).toLocaleString('pt-BR',{minimumFractionDigits:2})}` : '—';
+    const tanqueNome = m.mn_tanques ? m.mn_tanques.nome : '—';
+    const acoesCell = isMaster() ? `<td style="display:flex;gap:4px;padding:8px 14px">
+      <button class="btn btn-ghost btn-sm" onclick="editarMovimento('${m.id}')" title="Editar">✏</button>
+      <button class="btn btn-danger btn-sm" onclick="excluirMovimento('${m.id}')" title="Excluir">✕</button>
+    </td>` : '';
+    if (dash) {
+      return `<tr>
+        <td class="td-mono" style="color:var(--muted)">${dt}</td>
+        <td><span class="badge-metal badge-${m.metal}">${m.metal}</span></td>
+        <td style="color:${tipoColor[m.tipo]||'var(--muted2)'}">${tipoLabel[m.tipo]||m.tipo}</td>
+        <td class="td-right td-mono" style="color:${colorQtd}">${sinal}${parseFloat(m.quantidade_g).toFixed(3)}g</td>
+        <td style="color:var(--muted)">${tanqueNome}</td>
+        <td style="color:var(--muted)">${m.responsavel||'—'}</td>
+      </tr>`;
+    }
+    return `<tr>
+      <td class="td-mono" style="color:var(--muted)">${dt}</td>
+      <td><span class="badge-metal badge-${m.metal}">${m.metal}</span></td>
+      <td style="color:${tipoColor[m.tipo]||'var(--muted2)'}">${tipoLabel[m.tipo]||m.tipo}</td>
+      <td class="td-right td-mono" style="color:${colorQtd}">${sinal}${parseFloat(m.quantidade_g).toFixed(3)}g</td>
+      <td class="td-mono" style="color:var(--muted)">${valor}</td>
+      <td style="color:var(--muted)">${tanqueNome}</td>
+      <td style="color:var(--muted)">${m.nota_fiscal||'—'}</td>
+      <td style="color:var(--muted)">${m.responsavel||'—'}</td>
+      <td style="color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis">${m.observacao||''}</td>
+      ${acoesCell}
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  REFORÇOS
+// ════════════════════════════════════════
+async function loadReforcos() {
+  const {data, error} = await sbM.from('mn_reforcos')
+    .select('*, mn_tanques(nome,metal)')
+    .order('criado_em', {ascending: false})
+    .limit(100);
+  if (error) { toast('Erro', 'err'); return; }
+  const tbody = document.getElementById('ref-tbody');
+  const thAcoes = document.getElementById('ref-th-acoes');
+  if (thAcoes) thAcoes.style.display = isMaster() ? '' : 'none';
+  if (!data || !data.length) {
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--muted)">Nenhum reforço registrado</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(r => {
+    const dt = new Date(r.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const tn = r.mn_tanques ? r.mn_tanques.nome : '—';
+    const m = r.mn_tanques ? r.mn_tanques.metal : r.metal;
+    const acoesCell = isMaster() ? `<td style="display:flex;gap:4px;padding:8px 14px">
+      <button class="btn btn-ghost btn-sm" onclick="editarReforco('${r.id}')" title="Editar">✏</button>
+      <button class="btn btn-danger btn-sm" onclick="excluirReforco('${r.id}')" title="Excluir">✕</button>
+    </td>` : '';
+    return `<tr>
+      <td class="td-mono" style="color:var(--muted)">${dt}</td>
+      <td>${tn}</td>
+      <td><span class="badge-metal badge-${m}">${m}</span></td>
+      <td class="td-right td-mono" style="color:var(--au)">+${parseFloat(r.quantidade_g).toFixed(3)}g</td>
+      <td class="td-mono">${r.conc_antes_g_l != null ? r.conc_antes_g_l : '—'}</td>
+      <td class="td-mono">${r.conc_depois_g_l != null ? r.conc_depois_g_l : '—'}</td>
+      <td class="td-mono">${r.ph_antes != null ? r.ph_antes : '—'}</td>
+      <td class="td-mono">${r.temp_c != null ? r.temp_c + '°C' : '—'}</td>
+      <td style="color:var(--muted)">${r.motivo||'—'}</td>
+      <td style="color:var(--muted)">${r.responsavel||'—'}</td>
+      ${acoesCell}
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  ANÁLISES
+// ════════════════════════════════════════
+async function loadAnalises() {
+  const {data, error} = await sbM.from('mn_analises')
+    .select('*, mn_tanques(nome,metal)')
+    .order('criado_em', {ascending: false})
+    .limit(100);
+  if (error) { toast('Erro', 'err'); return; }
+  const tbody = document.getElementById('anal-tbody');
+  const thAcoes = document.getElementById('anal-th-acoes');
+  if (thAcoes) thAcoes.style.display = isMaster() ? '' : 'none';
+  if (!data || !data.length) {
+    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--muted)">Nenhuma análise registrada</td></tr>`;
+    return;
+  }
+  const resColor = {ok:'var(--green)',atenção:'var(--warn)',critico:'var(--red)'};
+  tbody.innerHTML = data.map(a => {
+    const dt = new Date(a.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const tn = a.mn_tanques ? a.mn_tanques.nome : '—';
+    const empresaMatch = a.observacao ? a.observacao.match(/^\[(.+?)\]/) : null;
+    const empresa = empresaMatch ? empresaMatch[1] : '—';
+    const obsLimpa = a.observacao ? a.observacao.replace(/^\[.+?\]\s*/, '') : '';
+    const acoesCell = isMaster() ? `<td style="display:flex;gap:4px;padding:8px 14px">
+      <button class="btn btn-ghost btn-sm" onclick="editarAnalise('${a.id}')" title="Editar">✏</button>
+      <button class="btn btn-danger btn-sm" onclick="excluirAnalise('${a.id}')" title="Excluir">✕</button>
+    </td>` : '';
+    return `<tr>
+      <td class="td-mono" style="color:var(--muted)">${dt}</td>
+      <td>${tn}</td>
+      <td style="color:var(--blue)">${empresa}</td>
+      <td class="td-mono">${a.conc_g_l != null ? a.conc_g_l : '—'}</td>
+      <td class="td-mono">${a.ph != null ? a.ph : '—'}</td>
+      <td class="td-mono">${a.temp_c != null ? a.temp_c + '°C' : '—'}</td>
+      <td class="td-mono">${a.corrente_a != null ? a.corrente_a + 'A' : '—'}</td>
+      <td style="color:${resColor[a.resultado]||'var(--muted)'};font-weight:600">${a.resultado||'—'}</td>
+      <td style="color:var(--muted)">${a.responsavel||'—'}</td>
+      <td style="color:var(--muted)">${obsLimpa}</td>
+      ${acoesCell}
+    </tr>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+//  ALERTAS PAGE
+// ════════════════════════════════════════
+async function renderAlertasPage() {
+  await loadAlertas();
+  const el = document.getElementById('alertas-list');
+  if (!alertas.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-ico">✓</div><div class="empty-txt">Nenhum alerta ativo no momento.<br>Todos os tanques estão dentro dos parâmetros.</div></div>`;
+    return;
+  }
+  el.innerHTML = alertas.map(a => alertBanner(a)).join('');
+}
+
+async function resolverAlerta(id) {
+  const {error} = await sbM.from('mn_alertas').update({
+    resolvido: true,
+    resolvido_em: new Date().toISOString(),
+    resolvido_por: 'Marco'
+  }).eq('id', id);
+  if (error) { toast('Erro ao resolver alerta', 'err'); return; }
+  toast('Alerta resolvido', 'ok');
+  await loadAlertas();
+  renderAlertasPage();
+  renderDashAlertas();
+}
+
+// ════════════════════════════════════════
+//  CONFIG TANQUES
+// ════════════════════════════════════════
+async function renderConfigTanques() {
+  await loadTanques();
+  const tbody = document.getElementById('cfg-tbody');
+  if (!tanques.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--muted)">Nenhum tanque cadastrado</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = tanques.map(t => `<tr>
+    <td style="font-weight:500">${t.nome}</td>
+    <td><span class="badge-metal badge-${t.metal}">${t.metal}</span></td>
+    <td class="td-mono td-right">${t.volume_litros || '—'}</td>
+    <td class="td-mono td-right">${t.conc_ideal_g_l || '—'}</td>
+    <td class="td-mono td-right">${t.conc_min_g_l || '—'}</td>
+    <td class="td-mono td-right">${t.conc_max_g_l || '—'}</td>
+    <td class="td-mono td-right">${t.reforco_padrao_g || '—'}</td>
+    <td class="td-mono td-right" style="color:var(--au)">${(t.saldo_atual_g||0).toFixed(3)}g</td>
+    <td style="display:flex;gap:6px">
+      ${isMaster() ? `
+      <button class="btn btn-ghost btn-sm" onclick="editarTanque('${t.id}')" title="Editar">✏</button>
+      <button class="btn btn-danger btn-sm" onclick="confirmarExcluirTanque('${t.id}','${t.nome.replace(/'/g,"\\'")}'))" title="Excluir">✕</button>
+      ` : '<span style="font-size:10px;color:var(--muted)">—</span>'}
+    </td>
+  </tr>`).join('');
+}
+
+function editarTanque(id) {
+  const t = tanques.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('t-id').value = t.id;
+  document.getElementById('t-nome').value = t.nome;
+  document.getElementById('t-metal').value = t.metal;
+  document.getElementById('t-vol').value = t.volume_litros || '';
+  document.getElementById('t-desc').value = t.descricao || '';
+  document.getElementById('t-conc-ideal').value = t.conc_ideal_g_l || '';
+  document.getElementById('t-conc-min').value = t.conc_min_g_l || '';
+  document.getElementById('t-conc-max').value = t.conc_max_g_l || '';
+  document.getElementById('t-temp').value = t.temp_ideal_c || '';
+  document.getElementById('t-ph').value = t.ph_ideal || '';
+  document.getElementById('t-ph-min').value = t.ph_min || '';
+  document.getElementById('t-ph-max').value = t.ph_max || '';
+  document.getElementById('t-ref-padrao').value = t.reforco_padrao_g || '';
+  document.getElementById('t-intervalo').value = t.intervalo_reforco_h || '';
+  document.getElementById('tanque-modal-title').innerHTML = '⚙ <span>Editar Tanque</span>';
+  openModal('tanque');
+}
+
+function confirmarExcluirTanque(id, nome) {
+  if (!isMaster()) { toast('Acesso restrito — apenas Master', 'err'); return; }
+  if (!confirm(`Excluir o tanque "${nome}"?\n\nEsta ação desativa o tanque permanentemente.\nHistórico de reforços e análises será mantido.`)) return;
+  excluirTanque(id, nome);
+}
+
+async function excluirTanque(id, nome) {
+  const {error} = await sbM.from('mn_tanques').update({ativo: false}).eq('id', id);
+  if (error) { toast('Erro ao excluir: ' + error.message, 'err'); return; }
+  toast(`Tanque "${nome}" removido.`, 'ok');
+  await loadTanques();
+  renderConfigTanques();
+  renderDashTanques();
+}
+
+// ════════════════════════════════════════
+//  SALVAR / CRUD
+// ════════════════════════════════════════
+async function salvarMovimentacao() {
+  if (!isMaster()) { toast('Acesso restrito — apenas Master', 'err'); return; }
+  const metal = document.getElementById('m-metal').value;
+  const tipo = document.getElementById('m-tipo').value;
+  const qtd = parseFloat(document.getElementById('m-qtd').value);
+  const preco = parseFloat(document.getElementById('m-preco').value) || 0;
+  const tanqueId = document.getElementById('m-tanque').value || null;
+  if (!metal || !tipo || !qtd || qtd <= 0) { toast('Preencha metal, tipo e quantidade', 'err'); return; }
+
+  // Para Au, determina estado
+  let estadoMetal = null;
+  if (metal === 'Au') {
+    estadoMetal = document.getElementById('m-estado-au').value || 'solido';
+  }
+
+  const isEntrada = ['entrada','recuperacao'].includes(tipo);
+  const payload = {
+    metal, tipo,
+    quantidade_g: qtd,
+    tanque_id: tanqueId,
+    nota_fiscal: document.getElementById('m-nf').value || null,
+    responsavel: document.getElementById('m-resp').value || 'Marco Liberty',
+    observacao: document.getElementById('m-obs').value || null,
+    valor_total: qtd * preco,
+    estado_metal: estadoMetal
+  };
+
+  const {error} = await sbM.from('mn_movimentacoes').insert(payload);
+  if (error) { toast('Erro: ' + error.message, 'err'); return; }
+
+  // Atualiza saldo do estoque
+  if (metal === 'Au') {
+    // Au usa estado sólido ou líquido
+    const estado = estadoMetal || 'solido';
+    const e = estoque.find(x => x.metal === 'Au' && x.estado === estado);
+    if (e) {
+      const novoSaldo = isEntrada ? (parseFloat(e.saldo_g) + qtd) : (parseFloat(e.saldo_g) - qtd);
+      await sbM.from('mn_estoque').update({saldo_g: Math.max(0, novoSaldo), atualizado_em: new Date().toISOString()}).eq('id', e.id);
+    }
+  } else {
+    const e = estoque.find(x => x.metal === metal);
+    if (e) {
+      const novoSaldo = isEntrada ? (parseFloat(e.saldo_g) + qtd) : (parseFloat(e.saldo_g) - qtd);
+      await sbM.from('mn_estoque').update({saldo_g: Math.max(0, novoSaldo), atualizado_em: new Date().toISOString()}).eq('metal', metal);
+    }
+  }
+
+  // Se tem tanque e é entrada, atualiza saldo do tanque
+  if (tanqueId && isEntrada) {
+    const t = tanques.find(x => x.id === tanqueId);
+    if (t) await sbM.from('mn_tanques').update({saldo_atual_g: parseFloat(t.saldo_atual_g||0) + qtd}).eq('id', tanqueId);
+  }
+  if (tanqueId && !isEntrada) {
+    const t = tanques.find(x => x.id === tanqueId);
+    if (t) await sbM.from('mn_tanques').update({saldo_atual_g: Math.max(0, parseFloat(t.saldo_atual_g||0) - qtd)}).eq('id', tanqueId);
+  }
+
+  closeModal('ov-mov');
+  toast('Movimentação registrada!', 'ok');
+  await Promise.all([loadTanques(), loadEstoque()]);
+  renderSidebarMetals();
+  renderDashboard();
+  if (document.getElementById('page-movimentos').classList.contains('active')) loadMovimentos();
+}
+
+async function salvarReforco() {
+  const tanqueId = document.getElementById('r-tanque').value;
+  const qtd = parseFloat(document.getElementById('r-qtd').value);
+  if (!tanqueId || !qtd || qtd <= 0) { toast('Selecione o tanque e informe a quantidade', 'err'); return; }
+
+  const t = tanques.find(x => x.id === tanqueId);
+  const metal = t ? t.metal : document.getElementById('r-metal').value;
+
+  const payload = {
+    tanque_id: tanqueId,
+    metal,
+    quantidade_g: qtd,
+    conc_antes_g_l: parseFloat(document.getElementById('r-conc-antes').value) || null,
+    conc_depois_g_l: parseFloat(document.getElementById('r-conc-depois').value) || null,
+    ph_antes: parseFloat(document.getElementById('r-ph-antes').value) || null,
+    ph_depois: parseFloat(document.getElementById('r-ph-depois').value) || null,
+    temp_c: parseFloat(document.getElementById('r-temp').value) || null,
+    motivo: document.getElementById('r-motivo').value,
+    responsavel: document.getElementById('r-resp').value || 'Marco Liberty',
+    observacao: document.getElementById('r-obs').value || null,
+    status: 'executado'
+  };
+
+  const {error} = await sbM.from('mn_reforcos').insert(payload);
+  if (error) { toast('Erro: ' + error.message, 'err'); return; }
+
+  // Registra também como movimentação
+  await sbM.from('mn_movimentacoes').insert({
+    metal, tipo: 'reforco',
+    quantidade_g: qtd,
+    tanque_id: tanqueId,
+    responsavel: payload.responsavel,
+    observacao: `Reforço — ${payload.motivo}`
+  });
+
+  // Atualiza saldo tanque
+  if (t) {
+    await sbM.from('mn_tanques').update({saldo_atual_g: parseFloat(t.saldo_atual_g||0) + qtd}).eq('id', tanqueId);
+  }
+  // Atualiza saldo estoque — reforço sempre consome líquido
+  if (metal === 'Au') {
+    const e = estoque.find(x => x.metal === 'Au' && x.estado === 'liquido');
+    if (e) await sbM.from('mn_estoque').update({saldo_g: Math.max(0, parseFloat(e.saldo_g) - qtd)}).eq('id', e.id);
+  } else {
+    const e = estoque.find(x => x.metal === metal);
+    if (e) await sbM.from('mn_estoque').update({saldo_g: Math.max(0, parseFloat(e.saldo_g) - qtd)}).eq('metal', metal);
+  }
+
+  // Resolve alerta sem_reforco se houver
+  await sbM.from('mn_alertas')
+    .update({resolvido: true, resolvido_em: new Date().toISOString(), resolvido_por: payload.responsavel})
+    .eq('tanque_id', tanqueId).eq('tipo_alerta', 'sem_reforco').eq('resolvido', false);
+
+  closeModal('ov-reforco');
+  toast('Reforço registrado com sucesso!', 'ok');
+  await Promise.all([loadTanques(), loadEstoque(), loadAlertas()]);
+  renderSidebarMetals();
+  renderDashboard();
+  if (document.getElementById('page-reforcos').classList.contains('active')) loadReforcos();
+}
+
+async function salvarAnalise() {
+  const tanqueId = document.getElementById('a-tanque').value;
+  if (!tanqueId) { toast('Selecione o tanque', 'err'); return; }
+  const conc = parseFloat(document.getElementById('a-conc').value) || null;
+  const ph = parseFloat(document.getElementById('a-ph').value) || null;
+  const resultado = document.getElementById('a-resultado').value;
+
+  const payload = {
+    tanque_id: tanqueId,
+    conc_g_l: conc,
+    ph,
+    temp_c: parseFloat(document.getElementById('a-temp').value) || null,
+    corrente_a: parseFloat(document.getElementById('a-corr').value) || null,
+    resultado,
+    responsavel: document.getElementById('a-resp').value || 'Marco Liberty',
+    observacao: (document.getElementById('a-empresa').value ? `[${document.getElementById('a-empresa').value}] ` : '') + (document.getElementById('a-obs').value || '')
+  };
+
+  const {error} = await sbM.from('mn_analises').insert(payload);
+  if (error) { toast('Erro: ' + error.message, 'err'); return; }
+
+  // Se resultado crítico ou atenção → gera alerta
+  const t = tanques.find(x => x.id === tanqueId);
+  if (resultado !== 'ok' && t) {
+    const nivel = resultado === 'critico' ? 'critico' : 'aviso';
+    let mensagem = `Análise do tanque "${t.nome}" com resultado: ${resultado}`;
+    if (conc && t.conc_min_g_l && conc < t.conc_min_g_l) mensagem += ` — concentração ${conc} g/L abaixo do mínimo (${t.conc_min_g_l} g/L)`;
+    if (ph && t.ph_min && ph < t.ph_min) mensagem += ` — pH ${ph} abaixo do mínimo (${t.ph_min})`;
+    await sbM.from('mn_alertas').insert({ tanque_id: tanqueId, tipo_alerta: 'conc_baixa', nivel, mensagem });
+  }
+
+  closeModal('ov-analise');
+  toast('Análise registrada!', 'ok');
+  await loadAlertas();
+  updateAlertaBadges();
+  if (document.getElementById('page-tanques').classList.contains('active')) loadAnalises();
+}
+
+async function salvarTanque() {
+  if (!isMaster()) { toast('Acesso restrito — apenas Master', 'err'); return; }
+  const id = document.getElementById('t-id').value;
+  const nome = document.getElementById('t-nome').value.trim();
+  const metal = document.getElementById('t-metal').value;
+  if (!nome || !metal) { toast('Nome e metal são obrigatórios', 'err'); return; }
+
+  const payload = {
+    nome, metal,
+    volume_litros: parseFloat(document.getElementById('t-vol').value) || 0,
+    descricao: document.getElementById('t-desc').value || null,
+    conc_ideal_g_l: parseFloat(document.getElementById('t-conc-ideal').value) || 0,
+    conc_min_g_l: parseFloat(document.getElementById('t-conc-min').value) || 0,
+    conc_max_g_l: parseFloat(document.getElementById('t-conc-max').value) || 0,
+    temp_ideal_c: parseFloat(document.getElementById('t-temp').value) || null,
+    ph_ideal: parseFloat(document.getElementById('t-ph').value) || null,
+    ph_min: parseFloat(document.getElementById('t-ph-min').value) || null,
+    ph_max: parseFloat(document.getElementById('t-ph-max').value) || null,
+    reforco_padrao_g: parseFloat(document.getElementById('t-ref-padrao').value) || 0,
+    intervalo_reforco_h: parseInt(document.getElementById('t-intervalo').value) || 0
+  };
+
+  let error;
+  if (id) {
+    ({error} = await sbM.from('mn_tanques').update(payload).eq('id', id));
+  } else {
+    ({error} = await sbM.from('mn_tanques').insert(payload));
+  }
+  if (error) { toast('Erro: ' + error.message, 'err'); return; }
+
+  closeModal('ov-tanque');
+  toast(id ? 'Tanque atualizado!' : 'Tanque criado!', 'ok');
+  await loadTanques();
+  renderConfigTanques();
+  renderDashTanques();
+}
+
+// ════════════════════════════════════════
+//  HELPERS DE MODAL
+// ════════════════════════════════════════
+function populateTanqueSelects() {
+  const selects = ['m-tanque','r-tanque','a-tanque'];
+  selects.forEach(sid => {
+    const el = document.getElementById(sid);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = `<option value="">— Nenhum —</option>` + tanques.map(t =>
+      `<option value="${t.id}">${t.nome} (${t.metal})</option>`
+    ).join('');
+    el.value = cur;
+  });
+}
+
+function abrirReforcoTanque(tanqueId, metal) {
+  populateTanqueSelects();
+  document.getElementById('r-tanque').value = tanqueId;
+  document.getElementById('r-metal').value = metal;
+  // Preenche qtd padrão
+  const t = tanques.find(x => x.id === tanqueId);
+  if (t && t.reforco_padrao_g) document.getElementById('r-qtd').value = t.reforco_padrao_g;
+  openModal('reforco');
+}
+
+function preencherMetalReforco() {
+  const sel = document.getElementById('r-tanque');
+  const t = tanques.find(x => x.id === sel.value);
+  if (t) {
+    document.getElementById('r-metal').value = t.metal;
+    if (t.reforco_padrao_g) document.getElementById('r-qtd').value = t.reforco_padrao_g;
+  }
+}
+
+const overlayMap = {mov:'ov-mov', reforco:'ov-reforco', analise:'ov-analise', tanque:'ov-tanque', diluicao:'ov-diluicao', usuario:'ov-usuario', 'edit-mov':'ov-edit-mov', 'edit-ref':'ov-edit-ref', 'edit-anal':'ov-edit-anal'};
+function openModal(key) {
+  populateTanqueSelects();
+  if (key === 'tanque') {
+    document.getElementById('t-id').value = '';
+    document.getElementById('tanque-modal-title').innerHTML = '⊟ <span>Novo Tanque</span>';
+  }
+  if (key === 'usuario') {
+    document.getElementById('u-id').value = '';
+    document.getElementById('u-nome').value = '';
+    document.getElementById('u-username').value = '';
+    document.getElementById('u-senha').value = '';
+    document.getElementById('u-perfil').value = 'operador';
+    document.getElementById('usuario-modal-title').innerHTML = '👤 <span>Novo Usuário</span>';
+  }
+  document.getElementById(overlayMap[key]).classList.add('open');
+}
+function closeModal(ovId) {
+  document.getElementById(ovId).classList.remove('open');
+}
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+});
+
+// ════════════════════════════════════════
+//  NAVEGAÇÃO
+// ════════════════════════════════════════
+const pageNames = {
+  dashboard: 'Dashboard',
+  tanques: 'Tanques / Análises',
+  movimentos: 'Movimentações',
+  reforcos: 'Reforços',
+  alertas: 'Alertas',
+  analises: 'Análises de Banho',
+  diluicao: 'Diluição de Ouro',
+  usuarios: 'Usuários',
+};
+
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  const pg = document.getElementById('page-' + page);
+  if (pg) pg.classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(i => {
+    if (i.getAttribute('onclick') && i.getAttribute('onclick').includes(`'${page}'`)) i.classList.add('active');
+  });
+  document.getElementById('tb-title').textContent = pageNames[page] || page;
+
+  // Lazy load por página
+  if (page === 'movimentos') loadMovimentos();
+  if (page === 'reforcos') loadReforcos();
+  if (page === 'alertas') renderAlertasPage();
+  if (page === 'diluicao') { renderDiluicaoCards(); loadDiluicoes(); }
+  if (page === 'config-tanques') renderConfigTanques();
+  if (page === 'usuarios') renderUsuarios();
+  if (page === 'tanques') {
+    document.getElementById('tanques-list').innerHTML = tanques.map(t => renderTanqueCard(t)).join('');
+    const el = document.getElementById('tanques-alertas');
+    const al = alertas.filter(a => a.nivel === 'critico');
+    el.innerHTML = al.map(a => alertBanner(a)).join('');
+    loadAnalises();
+  }
+}
+
+// ════════════════════════════════════════
+//  CONNECTION STATUS
+// ════════════════════════════════════════
+function setConn(ok) {
+  const dot = document.getElementById('conn-dot');
+  const lbl = document.getElementById('conn-lbl');
+  dot.className = ok ? 'ok' : 'err';
+  lbl.textContent = ok ? 'Conectado' : 'Erro de conexão';
+}
+
+// ════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════
+function toast(msg, type = 'info') {
+  const map = {ok:'toast-ok', err:'toast-err', info:'toast-info'};
+  const el = document.createElement('div');
+  el.className = `toast-item ${map[type]||'toast-info'}`;
+  el.textContent = msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ════════════════════════════════════════
+//  UTILITÁRIO: RECÁLCULO DE SALDO
+// ════════════════════════════════════════
+// Determina se um tipo de lançamento é entrada (+) ou saída (-)
+function ehEntrada(tipo) {
+  return ['entrada','recuperacao','reforco'].includes(tipo);
+}
+
+// Ajusta saldo do estoque: delta pode ser positivo ou negativo
+async function ajustarEstoque(metal, estadoMetal, delta) {
+  let q = sbM.from('mn_estoque').select('id,saldo_g');
+  if (metal === 'Au' && estadoMetal) {
+    q = q.eq('metal', metal).eq('estado', estadoMetal);
+  } else {
+    q = q.eq('metal', metal);
+  }
+  const {data} = await q.single();
+  if (!data) return;
+  const novoSaldo = Math.max(0, parseFloat(data.saldo_g) + delta);
+  await sbM.from('mn_estoque').update({saldo_g: novoSaldo, atualizado_em: new Date().toISOString()}).eq('id', data.id);
+}
+
+// Ajusta saldo do tanque
+async function ajustarSaldoTanque(tanqueId, delta) {
+  if (!tanqueId) return;
+  const t = tanques.find(x => x.id === tanqueId);
+  if (!t) return;
+  const novoSaldo = Math.max(0, parseFloat(t.saldo_atual_g||0) + delta);
+  await sbM.from('mn_tanques').update({saldo_atual_g: novoSaldo}).eq('id', tanqueId);
+}
+
+// Recarrega tudo e atualiza UI
+async function recarregarTudo() {
+  await Promise.all([loadTanques(), loadEstoque(), loadAlertas()]);
+  renderSidebarMetals();
+  renderEstoqueCards();
+  renderDashTanques();
+  await loadMovimentos(true);
+}
+
+// ════════════════════════════════════════
+//  EDITAR / EXCLUIR MOVIMENTAÇÕES (Master only)
+// ════════════════════════════════════════
+async function editarMovimento(id) {
+  if (!isMaster()) { toast('Acesso restrito — apenas Master', 'err'); return; }
+  const {data, error} = await sbM.from('mn_movimentacoes').select('*, mn_tanques(nome)').eq('id', id).single();
+  if (error || !data) { toast('Erro ao carregar lançamento', 'err'); return; }
+  document.getElementById('em-id').value      = data.id;
+  document.getElementById('em-metal').value   = data.metal || '';
+  document.getElementById('em-tipo').value    = data.tipo || 'entrada';
+  document.getElementById('em-qtd').value     = data.quantidade_g || '';
+  document.getElementById('em-valor').value   = data.valor_total || '';
+  document.getElementById('em-nf').value      = data.nota_fiscal || '';
+  document.getElementById('em-resp').value    = data.responsavel || 'Marco Liberty';
+  document.getElementById('em-obs').value     = data.observacao || '';
+  openModal('edit-mov');
+}
+
+async function salvarEdicaoMovimento() {
+  if (!isMaster()) { toast('Acesso restrito', 'err'); return; }
+  const id      = document.getElementById('em-id').value;
+  const novaQtd = parseFloat(document.getElementById('em-qtd').value);
+  const metal   = document.getElementById('em-metal').value;
+  const tipo    = document.getElementById('em-tipo').value;
+  if (!id || !novaQtd || novaQtd <= 0) { toast('Quantidade obrigatória', 'err'); return; }
+
+  // Busca lançamento original para calcular diferença
+  const {data: orig} = await sbM.from('mn_movimentacoes').select('*').eq('id', id).single();
+  if (!orig) { toast('Lançamento não encontrado', 'err'); return; }
+
+  const qtdOriginal = parseFloat(orig.quantidade_g);
+  const diff = novaQtd - qtdOriginal; // diferença
+  const sinalOrig = ehEntrada(orig.tipo) ? 1 : -1;
+  const sinalNovo = ehEntrada(tipo) ? 1 : -1;
+
+  // Reverte efeito original e aplica novo
+  const deltaEstoque = (sinalNovo * novaQtd) - (sinalOrig * qtdOriginal);
+
+  // Atualiza o registro
+  const payload = {
+    metal, tipo, quantidade_g: novaQtd,
+    valor_total: parseFloat(document.getElementById('em-valor').value) || 0,
+    nota_fiscal: document.getElementById('em-nf').value || null,
+    responsavel: document.getElementById('em-resp').value || 'Marco Liberty',
+    observacao:  document.getElementById('em-obs').value || null,
+  };
+  const {error} = await sbM.from('mn_movimentacoes').update(payload).eq('id', id);
+  if (error) { toast('Erro ao salvar: ' + error.message, 'err'); return; }
+
+  // Recalcula saldo estoque
+  await ajustarEstoque(metal, orig.estado_metal, deltaEstoque);
+
+  // Se tem tanque, recalcula saldo do tanque
+  if (orig.tanque_id) {
+    const deltaTanque = (sinalNovo * novaQtd) - (sinalOrig * qtdOriginal);
+    await ajustarSaldoTanque(orig.tanque_id, deltaTanque);
+  }
+
+  closeModal('ov-edit-mov');
+  toast(`Lançamento atualizado! Saldo recalculado (Δ ${deltaEstoque > 0 ? '+' : ''}${deltaEstoque.toFixed(3)}g)`, 'ok');
+  await recarregarTudo();
+  loadMovimentos();
+}
+
+async function excluirMovimento(id) {
+  if (!isMaster()) { toast('Acesso restrito', 'err'); return; }
+  if (!confirm('Excluir este lançamento?\n\nO saldo será recalculado automaticamente.')) return;
+
+  const {data: orig} = await sbM.from('mn_movimentacoes').select('*').eq('id', id).single();
+  if (!orig) { toast('Não encontrado', 'err'); return; }
+
+  const {error} = await sbM.from('mn_movimentacoes').delete().eq('id', id);
+  if (error) { toast('Erro: ' + error.message, 'err'); return; }
+
+  // Reverte o efeito no estoque
+  const sinal = ehEntrada(orig.tipo) ? -1 : 1; // inverte para desfazer
+  const qtd = parseFloat(orig.quantidade_g);
+  await ajustarEstoque(orig.metal, orig.estado_metal, sinal * qtd);
+
+  // Reverte no tanque
+  if (orig.tanque_id) {
+    await ajustarSaldoTanque(orig.tanque_id, sinal * qtd);
+  }
+
+  toast('Lançamento excluído. Saldo recalculado ✓', 'ok');
+  await recarregarTudo();
+  loadMovimentos();
+}
+
+// ════════════════════════════════════════
+//  EDITAR / EXCLUIR REFORÇOS (Master only)
+// ════════════════════════════════════════
+async function editarReforco(id) {
+  if (!isMaster()) { toast('Acesso restrito', 'err'); return; }
+  const {data, error} = await sbM.from('mn_reforcos').select('*, mn_tanques(nome,metal)').eq('id', id).single();
+  if (error || !data) { toast('Erro ao carregar', 'err'); return; }
+
+  document.getElementById('er-id').value           = data.id;
+  document.getElementById('er-qtd-original').value = data.quantidade_g;
+  document.getElementById('er-metal').value         = data.metal;
+  document.getElementById('er-tanque-id').value     = data.tanque_id;
+  document.getElementById('er-tanque-nome').value   = data.mn_tanques ? data.mn_tanques.nome : '—';
+  document.getElementById('er-metal-show').value    = data.metal;
+  document.getElementById('er-qtd').value           = data.quantidade_g;
+  document.getElementById('er-motivo').value        = data.motivo || 'Rotina';
+  document.getElementById('er-conc-antes').value    = data.conc_antes_g_l || '';
+  document.getElementById('er-conc-depois').value   = data.conc_depois_g_l || '';
+  document.getElementById('er-ph-antes').value      = data.ph_antes || '';
+  document.getElementById('er-temp').value          = data.temp_c || '';
+  document.getElementById('er-resp').value          = data.responsavel || 'Marco Liberty';
+  openModal('edit-ref');
+}
+
+async function salvarEdicaoReforco() {
+  if (!isMaster()) { toast('Acesso restrito', 'err'); return; }
+  const id          = document.getElementById('er-id').value;
+  const novaQtd     = parseFloat(document.getElementById('er-qtd').value);
+  const qtdOriginal = parseFloat(document.getElementById('er-qtd-original').value);
+  const metal       = document.getElementById('er-metal').value;
+  const tanqueId    = document.getElementById('er-tanque-id').value;
+  if (!id || !novaQtd || novaQtd <= 0) { toast('Quantidade obrigatória', 'err'); return; }
+
+  const diff = novaQtd - qtdOriginal; // positivo = aumentou, negativo = diminuiu
+
+  const payload = {
+    quantidade_g:    novaQtd,
+    motivo:          document.getElementById('er-motivo').value,
+    conc_antes_g_l:  parseFloat(document.getElementById('er-conc-antes').value) || null,
+    conc_depois_g_l: parseFloat(document.getElementById('er-conc-depois').value) || null,
+    ph_antes:        parseFloat(document.getElementById('er-ph-antes').value) || null,
+    temp_c:          parseFloat(document.getElementById('er-temp').value) || null,
+    responsavel:     document.getElementById('er-resp').value || 'Marco Liberty',
+  };
+
+  const {error} = await sbM.from('mn_reforcos').update(payload).eq('id', id);
+  if (error) { toast('Erro: ' + error.message, 'err'); return; }
+
+  // Reforço: +qtd no tanque, -qtd no estoque
+  // diff positivo = adicionou mais → +diff no tanque, -diff no estoque
+  if (Math.abs(diff) > 0.0001) {
+    await ajustarSaldoTanque(tanqueId, diff);
+    // Au usa estoque líquido para reforços
+    const estadoMetal = metal === 'Au' ? 'liquido' : null;
+    await ajustarEstoque(metal, estadoMetal, -diff);
+  }
+
+  closeModal('ov-edit-ref');
+  toast(`Reforço atualizado! Saldo recalculado (Δ ${diff > 0 ? '+' : ''}${diff.toFixed(3)}g) ✓`, 'ok');
+  await recarregarTudo();
+  loadReforcos();
+}
+
+async function excluirReforco(id) {
+  if (!isMaster()) { toast('Acesso restrito', 'err'); return; }
+  if (!confirm('Excluir este reforço?\n\nO saldo do tanque e estoque serão recalculados.')) return;
+
+  const {data: orig} = await sbM.from('mn_reforcos').select('*').eq('id', id).single();
+  if (!orig) { toast('Não encontrado', 'err'); return; }
+
+  const {error} = await sbM.from('mn_reforcos').delete().eq('id', id);
+  if (error) { toast('Erro: ' + error.message, 'err'); return; }
+
+  const qtd = parseFloat(orig.quantidade_g);
+  // Reverte: -qtd do tanque, +qtd no estoque
+  await ajustarSaldoTanque(orig.tanque_id, -qtd);
+  const estadoMetal = orig.metal === 'Au' ? 'liquido' : null;
+  await ajustarEstoque(orig.metal, estadoMetal, qtd);
+
+  toast('Reforço excluído. Saldo recalculado ✓', 'ok');
+  await recarregarTudo();
+  loadReforcos();
+}
+
+// ════════════════════════════════════════
+//  EDITAR / EXCLUIR ANÁLISES (Master only)
+// ════════════════════════════════════════
+async function editarAnalise(id) {
+  if (!isMaster()) { toast('Acesso restrito', 'err'); return; }
+  const {data, error} = await sbM.from('mn_analises').select('*').eq('id', id).single();
+  if (error || !data) { toast('Erro ao carregar', 'err'); return; }
+
+  populateTanqueSelects();
+  document.getElementById('ea-id').value        = data.id;
+  document.getElementById('ea-tanque').value    = data.tanque_id || '';
+  document.getElementById('ea-resultado').value = data.resultado || 'ok';
+  document.getElementById('ea-conc').value      = data.conc_g_l || '';
+  document.getElementById('ea-ph').value        = data.ph || '';
+  document.getElementById('ea-temp').value      = data.temp_c || '';
+  document.getElementById('ea-corr').value      = data.corrente_a || '';
+  document.getElementById('ea-resp').value      = data.responsavel || 'Marco Liberty';
+  // Extrai empresa e obs
+  const m = data.observacao ? data.observacao.match(/^\[(.+?)\]\s*(.*)$/) : null;
+  document.getElementById('ea-empresa').value   = m ? m[1] : '';
+  document.getElementById('ea-obs').value       = m ? m[2] : (data.observacao || '');
+  openModal('edit-anal');
+}
+
+async function salvarEdicaoAnalise() {
+  if (!isMaster()) { toast('Acesso restrito', 'err'); return; }
+  const id      = document.getElementById('ea-id').value;
+  const tanqueId = document.getElementById('ea-tanque').value;
+  if (!id) { toast('ID inválido', 'err'); return; }
+
+  const empresa = document.getElementById('ea-empresa').value;
+  const obs     = document.getElementById('ea-obs').value;
+  const obsCompleta = empresa ? `[${empresa}] ${obs}` : obs;
+
+  const payload = {
+    tanque_id:   tanqueId || null,
+    resultado:   document.getElementById('ea-resultado').value,
+    conc_g_l:    parseFloat(document.getElementById('ea-conc').value) || null,
+    ph:          parseFloat(document.getElementById('ea-ph').value) || null,
+    temp_c:      parseFloat(document.getElementById('ea-temp').value) || null,
+    corrente_a:  parseFloat(document.getElementById('ea-corr').value) || null,
+    responsavel: document.getElementById('ea-resp').value || 'Marco Liberty',
+    observacao:  obsCompleta || null,
+  };
+
+  const {error} = await sbM.from('mn_analises').update(payload).eq('id', id);
+  if (error) { toast('Erro: ' + error.message, 'err'); return; }
+
+  closeModal('ov-edit-anal');
+  toast('Análise atualizada ✓', 'ok');
+  loadAnalises();
+}
+
+async function excluirAnalise(id) {
+  if (!isMaster()) { toast('Acesso restrito', 'err'); return; }
+  if (!confirm('Excluir esta análise permanentemente?')) return;
+
+  const {error} = await sbM.from('mn_analises').delete().eq('id', id);
+  if (error) { toast('Erro: ' + error.message, 'err'); return; }
+
+  toast('Análise excluída ✓', 'ok');
+  loadAnalises();
+}
+
+// ════════════════════════════════════════
+//  TOGGLE ESTADO AU (movimentação)
+// ════════════════════════════════════════
+function toggleEstadoAu() {
+  const metal = document.getElementById('m-metal').value;
+  const row = document.getElementById('row-estado-au');
+  row.style.display = metal === 'Au' ? 'grid' : 'none';
+}
+
+// ════════════════════════════════════════
+//  DILUIÇÃO OURO
+// ════════════════════════════════════════
+function calcDiluicao() {
+  const sol = parseFloat(document.getElementById('d-solido').value) || 0;
+  const liq = parseFloat(document.getElementById('d-liquido').value) || 0;
+  const volMl = parseFloat(document.getElementById('d-vol-ml').value) || 0;
+  if (sol > 0 && liq > 0) document.getElementById('d-fator').value = (liq / sol).toFixed(4);
+  if (liq > 0 && volMl > 0) document.getElementById('d-conc-calc').value = (liq / (volMl / 1000)).toFixed(2);
+}
+
+async function salvarDiluicao() {
+  if (!isMaster()) { toast('Acesso restrito — apenas Master', 'err'); return; }
+  const solido = parseFloat(document.getElementById('d-solido').value);
+  const liquido = parseFloat(document.getElementById('d-liquido').value);
+  if (!solido || solido <= 0 || !liquido || liquido <= 0) { toast('Informe Au sólido e Au líquido gerado', 'err'); return; }
+
+  // Verifica saldo Au sólido
+  const auSol = estoque.find(x => x.metal === 'Au' && x.estado === 'solido');
+  if (auSol && parseFloat(auSol.saldo_g) < solido) {
+    toast(`Saldo Au Sólido insuficiente (${parseFloat(auSol.saldo_g).toFixed(3)}g disponível)`, 'err'); return;
+  }
+
+  const volMl = parseFloat(document.getElementById('d-vol-ml').value) || 0;
+  const fator = solido > 0 ? liquido / solido : 1;
+  const concCalc = (volMl > 0 && liquido > 0) ? liquido / (volMl / 1000) : 0;
+
+  const payload = {
+    qtd_solido_g: solido,
+    qtd_liquido_g: liquido,
+    fator_diluicao: fator,
+    solucao_ml: volMl,
+    concentracao_g_l: concCalc,
+    responsavel: document.getElementById('d-resp').value || 'Marco Liberty',
+    observacao: document.getElementById('d-obs').value || null
+  };
+
+  const {error} = await sbM.from('mn_diluicoes').insert(payload);
+  if (error) { toast('Erro: ' + error.message, 'err'); return; }
+
+  // Desconta Au sólido
+  if (auSol) await sbM.from('mn_estoque').update({saldo_g: Math.max(0, parseFloat(auSol.saldo_g) - solido)}).eq('id', auSol.id);
+
+  // Adiciona Au líquido
+  const auLiq = estoque.find(x => x.metal === 'Au' && x.estado === 'liquido');
+  if (auLiq) await sbM.from('mn_estoque').update({saldo_g: parseFloat(auLiq.saldo_g) + liquido}).eq('id', auLiq.id);
+
+  // Registra nas movimentações para rastreabilidade
+  await sbM.from('mn_movimentacoes').insert([
+    { metal:'Au', tipo:'saida', quantidade_g: solido, estado_metal:'solido', responsavel: payload.responsavel, observacao:`Diluição — consumo sólido` },
+    { metal:'Au', tipo:'entrada', quantidade_g: liquido, estado_metal:'liquido', responsavel: payload.responsavel, observacao:`Diluição — geração líquido` }
+  ]);
+
+  closeModal('ov-diluicao');
+  toast('Diluição registrada! Au Sólido → Au Líquido ✓', 'ok');
+  await Promise.all([loadEstoque()]);
+  renderSidebarMetals();
+  renderEstoqueCards();
+  renderDiluicaoCards();
+  if (document.getElementById('page-diluicao').classList.contains('active')) loadDiluicoes();
+}
+
+async function loadDiluicoes() {
+  const {data, error} = await sbM.from('mn_diluicoes').select('*').order('criado_em', {ascending: false}).limit(100);
+  const tbody = document.getElementById('dil-tbody');
+  if (error || !data || !data.length) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">Nenhuma diluição registrada</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(d => {
+    const dt = new Date(d.criado_em).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td class="td-mono" style="color:var(--muted)">${dt}</td>
+      <td class="td-mono" style="color:#A07020">-${parseFloat(d.qtd_solido_g).toFixed(3)}g</td>
+      <td class="td-mono" style="color:var(--au)">+${parseFloat(d.qtd_liquido_g).toFixed(3)}g</td>
+      <td class="td-mono">${parseFloat(d.fator_diluicao).toFixed(4)}</td>
+      <td class="td-mono">${d.solucao_ml ? d.solucao_ml + ' mL' : '—'}</td>
+      <td class="td-mono">${d.concentracao_g_l ? parseFloat(d.concentracao_g_l).toFixed(2) + ' g/L' : '—'}</td>
+      <td style="color:var(--muted)">${d.responsavel||'—'}</td>
+      <td style="color:var(--muted)">${d.observacao||''}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDiluicaoCards() {
+  const el = document.getElementById('diluicao-cards');
+  if (!el) return;
+  const auSol = estoque.find(x => x.metal === 'Au' && x.estado === 'solido');
+  const auLiq = estoque.find(x => x.metal === 'Au' && x.estado === 'liquido');
+  const sol = auSol ? parseFloat(auSol.saldo_g) : 0;
+  const liq = auLiq ? parseFloat(auLiq.saldo_g) : 0;
+  el.innerHTML = `
+    <div class="card card-Au" style="border-color:#5A3800!important;opacity:.9">
+      <div class="card-title">⬡ Au Sólido disponível</div>
+      <div class="card-val" style="color:#A07020">${sol.toFixed(3)}</div>
+      <div class="card-unit">gramas · aguardando diluição</div>
+      <div class="card-sub" style="color:var(--warn);margin-top:6px;font-size:9px">Origem: compra ou recuperação</div>
+    </div>
+    <div class="card card-Au">
+      <div class="card-title">◈ Au Líquido disponível</div>
+      <div class="card-val">${liq.toFixed(3)}</div>
+      <div class="card-unit">gramas · pronto para reforços</div>
+      <div class="card-sub" style="color:var(--green);margin-top:6px;font-size:9px">Origem: diluição de Au sólido</div>
+    </div>`;
+}
+
+// ════════════════════════════════════════
+//  MOBILE — SIDEBAR & BOTTOM NAV
+// ════════════════════════════════════════
+function toggleSidebar() {
+  const sbSidebar = document.querySelector('.sidebar');
+  const ov = document.getElementById('sb-overlay');
+  const hb = document.getElementById('hamburger-btn');
+  const isOpen = sbSidebar.classList.contains('open');
+  sbSidebar.classList.toggle('open', !isOpen);
+  ov.classList.toggle('open', !isOpen);
+  hb.classList.toggle('open', !isOpen);
+}
+function fecharSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('open');
+  document.getElementById('hamburger-btn').classList.remove('open');
+}
+
+function navMobile(page) {
+  fecharSidebar();
+  nav(page);
+  // Atualiza bottom nav ativo
+  document.querySelectorAll('.bn-item').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById('bn-' + page);
+  if (el) el.classList.add('active');
+}
+
+// Atualiza badge do bottom nav junto com o sidebar
+const _origUpdateAlertaBadges = typeof updateAlertaBadges === 'function' ? updateAlertaBadges : null;
+function updateAlertaBadgesAll() {
+  const count = alertas.length;
+  ['sb-alert-badge','sb-alertas-count','bn-alert-badge'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = count > 0 ? 'inline' : 'none';
+    el.textContent = count;
+  });
+}
+
+// ════════════════════════════════════════
+//  PWA — SERVICE WORKER
+// ════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // SW inline via blob para não precisar de arquivo separado
+    const swCode = `
+const CACHE = 'metais-nobres-v1';
+const ASSETS = ['./'];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
+});
+self.addEventListener('fetch', e => {
+  if (e.request.url.includes('supabase.co')) return; // nunca cacheia API
+  e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
+});`;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl).catch(()=>{});
+  });
+}
+
+// ════════════════════════════════════════
+//  START
+// ════════════════════════════════════════
+window.mnStart=function(s){sessao=s;atualizarUI();init();};
+</script>
+<script>
+const _AU={url:'https://khzviafgkswyajrdnbyp.supabase.co',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtoenZpYWZna3N3eWFqcmRuYnlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NTU3ODgsImV4cCI6MjA5NDAzMTc4OH0.OJE1NwBZVWmx2oNJU6PjDPWVP-c2SDocTdfLoyaIoaE'};
+const _AM={url:'https://dtdcokrmrwrjwboovfvf.supabase.co',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0ZGNva3Jtcndyandib292ZnZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NTU3MzcsImV4cCI6MjA5NDAzMTczN30.j0NCcBooAjXCk4IJ-5egWhk5jU7oDeRFX3L7s-dhVOg'};
+let _app=null,_ss={cpv:null,mn:null};
+async function _hash(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+function goSel(){document.getElementById('lgn').style.display='none';document.getElementById('sel').style.display='flex';}
+function goLogin(app){_app=app;document.getElementById('sel').style.display='none';document.getElementById('lgn').style.display='flex';document.getElementById('lgn-ico').textContent=app==='cpv'?'📊':'⬡';document.getElementById('lgn-title').textContent=app==='cpv'?'Sistema CPV':'Metais Nobres';document.getElementById('lgn-title').className='lgn-title '+app;document.getElementById('lgn-btn').className='lgn-btn '+app;document.getElementById('lgn-err').textContent='';document.getElementById('lgn-u').value='';document.getElementById('lgn-p').value='';setTimeout(()=>document.getElementById('lgn-u').focus(),150);}
+async function doLogin(){const u=document.getElementById('lgn-u').value.trim().toLowerCase();const p=document.getElementById('lgn-p').value;const btn=document.getElementById('lgn-btn'),err=document.getElementById('lgn-err');if(!u||!p){err.textContent='Preencha usuário e senha.';return;}btn.disabled=true;btn.textContent='Verificando…';err.textContent='';try{const cred=_app==='cpv'?_AU:_AM;const tabla=_app==='cpv'?'cpv_usuarios':'mn_usuarios';const sbTmp=supabase.createClient(cred.url,cred.key,{auth:{storageKey:'tmp-'+_app,autoRefreshToken:false,persistSession:false,detectSessionInUrl:false}});const hash=await _hash(p);const {data,error}=await sbTmp.from(tabla).select('id,nome,username,perfil,ativo').eq('username',u).eq('senha_hash',hash).eq('ativo',true).single();if(error||!data){err.textContent='Usuário ou senha incorretos.';btn.disabled=false;btn.textContent='Entrar';return;}_ss[_app]={id:data.id,nome:data.nome,username:data.username,perfil:data.perfil};try{sessionStorage.setItem('ph_s_'+_app,JSON.stringify(_ss[_app]));}catch(e){}document.getElementById('lgn').style.display='none';abrirApp(_app);}catch(e){err.textContent='Erro: '+e.message;}btn.disabled=false;btn.textContent='Entrar';}
+function abrirApp(app){document.getElementById('app-cpv').className=app==='cpv'?'on':'';document.getElementById('app-mn').className=app==='mn'?'on':'';try{localStorage.setItem('ph_last',app);}catch(e){}if(app==='cpv'&&!window._cpvOk){window._cpvOk=true;if(typeof window.cpvStart==='function')window.cpvStart();setTimeout(()=>{if(document.getElementById('sw-cpv'))return;const b=document.createElement('button');b.id='sw-cpv';b.className='sw-btn to-mn';b.innerHTML='⬡ Metais';b.onclick=()=>trocarApp('mn');const tr=document.querySelector('#app-cpv .topbar-right');if(tr)tr.insertBefore(b,tr.firstChild);},600);}if(app==='mn'){if(!window._mnOk){window._mnOk=true;if(typeof window.mnStart==='function')window.mnStart(_ss.mn);}else{sessao=_ss.mn;if(typeof atualizarUI==='function')atualizarUI();}setTimeout(()=>{if(document.getElementById('sw-mn'))return;const b=document.createElement('button');b.id='sw-mn';b.className='sw-btn to-cpv';b.innerHTML='📊 CPV';b.onclick=()=>trocarApp('cpv');const tb=document.querySelector('#app-mn .topbar');if(tb)tb.appendChild(b);},600);}}
+function trocarApp(app){if(_ss[app]){_app=app;abrirApp(app);}else{document.getElementById('app-cpv').className='';document.getElementById('app-mn').className='';goLogin(app);}}
+function fazerLogout(){if(!confirm('Deseja sair?'))return;_ss[_app]=null;window._cpvOk=false;window._mnOk=false;try{sessionStorage.removeItem('ph_s_'+_app);}catch(e){}document.getElementById('app-cpv').className='';document.getElementById('app-mn').className='';document.getElementById('sel').style.display='flex';}
+(function(){try{const sc=sessionStorage.getItem('ph_s_cpv'),sm=sessionStorage.getItem('ph_s_mn');if(sc)_ss.cpv=JSON.parse(sc);if(sm)_ss.mn=JSON.parse(sm);const last=localStorage.getItem('ph_last');if(last&&_ss[last]){_app=last;abrirApp(last);return;}}catch(e){}document.getElementById('sel').style.display='flex';})();
+</script>
+</body></html>
